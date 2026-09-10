@@ -4,26 +4,28 @@ import { ApiErrorResponse } from "@bhagirathi/types";
 
 // Dynamic API Base Resolution compatible with Vite and tests
 const getApiBaseUrl = (): string => {
-  try {
-    const envUrl = (import.meta as any).env?.VITE_API_URL;
+  const env = (import.meta as any).env;
 
-    if (typeof window !== "undefined") {
-      const hostname = window.location.hostname;
-      if (hostname && hostname !== "localhost" && hostname !== "127.0.0.1") {
-        // If envUrl is NOT custom production domain/path (i.e. empty or localhost), adapt dynamically
-        if (!envUrl || envUrl.includes("localhost") || envUrl.includes("127.0.0.1")) {
-          return `http://${hostname}:8000`;
-        }
-      }
-    }
+  const envUrl =
+    env?.VITE_API_BASE_URL ||
+    env?.VITE_API_URL;
 
-    if (envUrl) return envUrl;
-    return "http://localhost:8000";
-  } catch {
-    return "http://localhost:8000";
+  if (envUrl) {
+    return String(envUrl).replace(/\/+$/, "");
   }
-};
 
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+
+    if (hostname === "localhost" || hostname === "127.0.0.1") {
+      return "http://localhost:8000";
+    }
+  }
+
+  throw new Error(
+    "API base URL is not configured. Set VITE_API_BASE_URL."
+  );
+};
 // ─────────────────────────────────────────────────────────────────────────────
 // Portal-Specific Storage Key Configuration
 //
