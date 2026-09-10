@@ -1,0 +1,19 @@
+{
+  "name": "bhagirathi-hostel-pg",
+  "private": true,
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "scripts": {
+    "build": "pnpm --filter \"./apps/*\" --filter \"./packages/*\" build",
+    "dev:admin": "pnpm --filter admin-app dev",
+    "dev:tenant": "pnpm --filter tenant-app dev",
+    "dev:maintenance": "pnpm --filter maintenance-app dev",
+    "lint": "pnpm -r lint",
+    "clean": "pnpm -r exec rm -rf dist .turbo node_modules"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}

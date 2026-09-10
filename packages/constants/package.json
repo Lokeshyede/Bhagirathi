@@ -1,0 +1,10 @@
+{
+  "name": "@bhagirathi/constants",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "private": true,
+  "scripts": {
+    "build": "tsc -b"
+  }
+}

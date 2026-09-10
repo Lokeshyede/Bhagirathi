@@ -1,0 +1,24 @@
+FROM node:20-alpine AS builder
+WORKDIR /workspace
+RUN npm install -g pnpm
+
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml* tsconfig.json ./
+COPY packages/ ./packages/
+COPY apps/admin/package.json ./apps/admin/
+
+# Run install
+RUN pnpm install --no-frozen-lockfile
+
+# Copy application source files
+COPY apps/admin/ ./apps/admin/
+
+# Build admin app
+RUN pnpm --filter admin-app build
+
+# Nginx serving stage
+FROM nginx:alpine
+COPY --from=builder /workspace/apps/admin/dist /usr/share/nginx/html
+COPY docker/nginx/nginx.admin.conf /etc/nginx/nginx.conf
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

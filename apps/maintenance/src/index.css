@@ -1,0 +1,11 @@
+@import "../../../packages/ui/src/index.css";
+
+/* Maintenance-specific overrides */
+:root {
+  --color-primary: #DC2626;
+  --color-primary-8: rgba(220, 38, 38, 0.08);
+  --color-primary-10: rgba(220, 38, 38, 0.10);
+}
+
+.bg-primary\/8 { background-color: var(--color-primary-8); }
+.bg-primary\/10 { background-color: var(--color-primary-10); }
