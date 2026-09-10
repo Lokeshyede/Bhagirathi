@@ -23,7 +23,9 @@ import { ActionRequiredCard } from "../components/ActionRequiredCard";
 import { RecentActivityCard } from "../components/RecentActivityCard";
 import { QuickActionsCard } from "../components/QuickActionsCard";
 import { RentAlertPopup } from "../components/RentAlertPopup";
+import { TodayRentCollectionSection } from "../components/TodayRentCollectionSection";
 import { DashboardSkeleton } from "../components/DashboardSkeleton";
+
 import { DashboardEmptyState } from "../components/DashboardEmptyState";
 
 import { Button } from "@bhagirathi/ui";
@@ -183,7 +185,14 @@ export const DashboardPage: React.FC = () => {
         />
       </div>
 
+      {/* 4b. Today's Rent Collection / Rent Reminder Section */}
+      <TodayRentCollectionSection
+        hostelId={hostelId}
+        buildingId={buildingId}
+      />
+
       {/* 5. Lower Section: Action Required + Recent Activity + Quick Actions (3 Columns) */}
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         {/* Column 1: Action Required (4 cols) */}
         <div className="lg:col-span-4 flex flex-col">

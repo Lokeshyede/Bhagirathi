@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTenantStore } from "../store/useTenantStore";
 import { useTenants, useTenantMutations } from "../hooks/api/useTenant";
 import { useAllocationMutations } from "../hooks/api/useAllocation";
@@ -12,7 +13,7 @@ import { TransferRoomDialog } from "../components/TransferRoomDialog";
 import { TransferBedDialog } from "../components/TransferBedDialog";
 import { TenantProfile } from "../components/TenantProfile";
 import { StatisticsCards } from "../components/StatisticsCards";
-import { DeleteDialog } from "../../hostel/components/DeleteDialog";
+import { ArchiveTenantDialog } from "../components/ArchiveTenantDialog";
 
 import { Button, PageHeader, PageSkeleton, NoTenant, NoSearchResult } from "@bhagirathi/ui";
 import { parseApiError } from "@bhagirathi/utils";
@@ -27,11 +28,13 @@ import {
   ChevronRight,
   Home,
   RefreshCw,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Archive
 } from "lucide-react";
 import { motion } from "framer-motion";
 
 export const TenantManagementPage: React.FC = () => {
+  const navigate = useNavigate();
   const {
     selectedTenantId,
     activeViewMode,
@@ -48,7 +51,7 @@ export const TenantManagementPage: React.FC = () => {
   const { data: tenants, isLoading, isError, refetch } = useTenants();
 
   // Mutations
-  const { createTenant, updateTenant, deleteTenant, checkinTenant } = useTenantMutations();
+  const { createTenant, updateTenant, checkinTenant, archiveTenant } = useTenantMutations();
   const { allocateBed, transferRoom, transferBed, checkoutTenant: newCheckoutTenant } = useAllocationMutations();
 
   // Dialogs local triggers
@@ -59,7 +62,7 @@ export const TenantManagementPage: React.FC = () => {
   const [isTransferBedOpen, setIsTransferBedOpen] = useState(false);
   const [editItem, setEditItem] = useState<any | null>(null);
   const [activeTenantContext, setActiveTenantContext] = useState<any | null>(null);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [archiveTarget, setArchiveTarget] = useState<any | null>(null);
 
   // Errors state
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -246,16 +249,10 @@ export const TenantManagementPage: React.FC = () => {
     }
   };
 
-  // Delete profile confirm
-  const handleDeleteConfirm = async () => {
-    if (!deleteId) return;
-    try {
-      setErrorMsg(null);
-      await deleteTenant.mutateAsync(deleteId);
-      setDeleteId(null);
-    } catch (err: any) {
-      setErrorMsg(parseApiError(err, "Delete failed."));
-    }
+  // Archive tenant initiate
+  const handleArchiveInitiate = (id: string) => {
+    const target = tenants?.find((t) => t.id === id);
+    setArchiveTarget(target || { id, full_name: "Tenant" });
   };
 
   const isFormSubmitting =
@@ -296,6 +293,15 @@ export const TenantManagementPage: React.FC = () => {
         }
         actions={
           <div className="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => navigate("/tenants/archived")}
+              title="Archived Tenants Registry"
+              className="font-bold text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-900/40 hover:bg-amber-50 dark:hover:bg-amber-950/20"
+            >
+              <Archive className="h-4 w-4" />
+              <span className="hidden sm:inline">Archived Registry</span>
+            </Button>
             <Button
               variant="secondary"
               onClick={() => setIsBulkImportOpen(true)}
@@ -431,7 +437,7 @@ export const TenantManagementPage: React.FC = () => {
             setEditItem(t);
             setIsFormOpen(true);
           }}
-          onDelete={setDeleteId}
+          onDelete={handleArchiveInitiate}
           onSelect={setSelectedTenantId}
           onCheckIn={(t) => {
             setErrorMsg(null);
@@ -465,7 +471,7 @@ export const TenantManagementPage: React.FC = () => {
                 setEditItem(x);
                 setIsFormOpen(true);
               }}
-              onDelete={setDeleteId}
+              onDelete={handleArchiveInitiate}
               onSelect={setSelectedTenantId}
               onCheckIn={(x) => {
                 setErrorMsg(null);
@@ -555,14 +561,23 @@ export const TenantManagementPage: React.FC = () => {
         />
       )}
 
-      {deleteId && (
-        <DeleteDialog
+      {archiveTarget && (
+        <ArchiveTenantDialog
           isOpen={true}
-          onClose={() => setDeleteId(null)}
-          onConfirm={handleDeleteConfirm}
-          title="Delete Tenant Profile"
-          message="Are you sure you want to permanently delete this tenant profile? This operation cannot be undone."
-          isLoading={deleteTenant.isPending}
+          onClose={() => setArchiveTarget(null)}
+          onConfirm={async (reason) => {
+            try {
+              setErrorMsg(null);
+              await archiveTenant.mutateAsync({ id: archiveTarget.id, reason });
+              setArchiveTarget(null);
+            } catch (err: any) {
+              setErrorMsg(parseApiError(err, "Archiving tenant failed."));
+            }
+          }}
+          tenantName={archiveTarget.full_name || "Tenant"}
+          tenantId={archiveTarget.tenant_id}
+          roomBedInfo={archiveTarget.room_number ? `Room ${archiveTarget.room_number}` : undefined}
+          isLoading={archiveTenant.isPending}
         />
       )}
 

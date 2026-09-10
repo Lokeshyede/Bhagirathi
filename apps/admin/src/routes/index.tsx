@@ -24,6 +24,7 @@ import AvailabilityPage from "../features/hostel/pages/AvailabilityPage";
 // Import Tenant Management Feature Page
 import TenantManagementPage from "../features/tenant/pages/TenantManagementPage";
 import TenantProfilePage from "../features/tenant/pages/TenantProfilePage";
+import ArchivedTenantsPage from "../features/tenant/pages/ArchivedTenantsPage";
 
 
 // Import Rent Management Feature Page
@@ -189,6 +190,7 @@ export const AppRoutes: React.FC = () => {
         <Route path="rooms/:roomId" element={<ErrorBoundary name="Room Details"><RoomDetailPage /></ErrorBoundary>} />
 
         <Route path="tenants" element={<ErrorBoundary name="Tenants"><TenantManagementPage /></ErrorBoundary>} />
+        <Route path="tenants/archived" element={<ErrorBoundary name="Archived Tenants"><ArchivedTenantsPage /></ErrorBoundary>} />
         <Route path="tenants/:tenantId" element={<ErrorBoundary name="Tenant Profile"><TenantProfilePage /></ErrorBoundary>} />
 
         <Route path="maintenance" element={<ErrorBoundary name="Maintenance"><MaintenanceManagementPage /></ErrorBoundary>} />

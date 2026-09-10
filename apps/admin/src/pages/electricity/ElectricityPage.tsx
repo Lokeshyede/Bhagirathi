@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@bhagirathi/api-client";
 import { ElectricityBill, ElectricityDashboardStats } from "@bhagirathi/types";
@@ -12,8 +13,26 @@ import { ElectricityReadingModal } from "./components/ElectricityReadingModal";
 
 export const ElectricityPage: React.FC = () => {
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<"dashboard" | "history" | "ledger" | "verification" | "reports">("dashboard");
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "history" | "ledger" | "verification" | "reports">(
+    initialTab && ["dashboard", "history", "ledger", "verification", "reports"].includes(initialTab)
+      ? (initialTab as any)
+      : "dashboard"
+  );
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && ["dashboard", "history", "ledger", "verification", "reports"].includes(tab)) {
+      setActiveTab(tab as any);
+    }
+  }, [searchParams]);
   
+  // Overview Filters
+  const [overviewHostelId, setOverviewHostelId] = useState("");
+  const [overviewMonth, setOverviewMonth] = useState("");
+  const [overviewYear, setOverviewYear] = useState("");
+
   // Ledger Filters
   const [searchQuery, setSearchQuery] = useState("");
   const [filterHostelId, setFilterHostelId] = useState("");
@@ -44,11 +63,30 @@ export const ElectricityPage: React.FC = () => {
   const [verificationRemarks, setVerificationRemarks] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
 
+  // Media URL Helper (Production Safe)
+  const getMediaUrl = (path?: string | null): string => {
+    if (!path) return "";
+    if (path.startsWith("http://") || path.startsWith("https://")) return path;
+    const base = (apiClient.defaults.baseURL || "").replace(/\/+$/, "");
+    return `${base}${path.startsWith("/") ? "" : "/"}${path}`;
+  };
+
   // Queries
-  const { data: stats, isLoading: loadingStats, refetch: refetchStats, isFetching: fetchingStats } = useQuery<ElectricityDashboardStats>({
-    queryKey: ["electricity-stats"],
+  const {
+    data: stats,
+    isLoading: loadingStats,
+    isError: errorStats,
+    error: statsError,
+    refetch: refetchStats,
+    isFetching: fetchingStats,
+  } = useQuery<ElectricityDashboardStats>({
+    queryKey: ["electricity-stats", overviewHostelId, overviewMonth, overviewYear],
     queryFn: async () => {
-      const res = await apiClient.get("/api/v1/electricity-bills/dashboard/stats");
+      const params: Record<string, any> = {};
+      if (overviewHostelId) params.hostel_id = overviewHostelId;
+      if (overviewMonth) params.month = overviewMonth;
+      if (overviewYear) params.year = overviewYear;
+      const res = await apiClient.get("/api/v1/electricity-bills/dashboard/stats", { params });
       return res.data;
     }
   });
@@ -61,12 +99,12 @@ export const ElectricityPage: React.FC = () => {
     }
   });
 
-    const { data: bills, isLoading: loadingBills, refetch: refetchBills, isFetching: fetchingBills } = useQuery<any[]>({
+  const { data: bills, isLoading: loadingBills, refetch: refetchBills, isFetching: fetchingBills } = useQuery<any[]>({
     queryKey: ["electricity-dues", searchQuery, filterHostelId, filterStatus, sortKey, sortDir],
     queryFn: async () => {
       const params: Record<string, any> = {};
       if (searchQuery.trim()) params.tenant_name = searchQuery;
-      // We don't have hostel filter yet, but could add room search
+      if (filterHostelId) params.hostel_id = filterHostelId;
       if (filterStatus) params.status = filterStatus;
       
       const res = await apiClient.get("/api/v1/electricity-bills/tenant-dues", { params });
@@ -272,9 +310,79 @@ export const ElectricityPage: React.FC = () => {
       <div>
         {activeTab === "dashboard" && (
           <div className="space-y-6">
-            {/* Stats Cards */}
-            {loadingStats ? (
-              <div className="grid grid-cols-5 gap-4 animate-pulse select-none">
+            {/* Overview Filter Bar */}
+            <div className="glass-panel p-4 shadow-sm grid grid-cols-2 md:grid-cols-4 gap-4 items-end select-none">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[8px] font-black text-muted uppercase tracking-widest">Filter by PG</label>
+                <select
+                  value={overviewHostelId}
+                  onChange={(e) => setOverviewHostelId(e.target.value)}
+                  className="h-9 px-2 border border-border dark:border-gray-855 rounded bg-gray-55/35 dark:bg-gray-955 text-xs font-semibold text-secondaryText focus:outline-none cursor-pointer"
+                >
+                  <option value="">All PG Hostels</option>
+                  {hostels?.map((h) => (
+                    <option key={h.id} value={h.id}>{h.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[8px] font-black text-muted uppercase tracking-widest">Month</label>
+                <select
+                  value={overviewMonth}
+                  onChange={(e) => setOverviewMonth(e.target.value)}
+                  className="h-9 px-2 border border-border dark:border-gray-855 rounded bg-gray-55/35 dark:bg-gray-955 text-xs font-semibold text-secondaryText focus:outline-none cursor-pointer"
+                >
+                  <option value="">All Months</option>
+                  {[...Array(12)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>{getMonthName(i + 1)}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[8px] font-black text-muted uppercase tracking-widest">Year</label>
+                <input
+                  type="number"
+                  placeholder="e.g. 2026"
+                  value={overviewYear}
+                  onChange={(e) => setOverviewYear(e.target.value)}
+                  className="h-9 px-3 border border-border dark:border-gray-850 rounded bg-gray-55/35 dark:bg-gray-955 text-xs text-primaryText focus:outline-none"
+                />
+              </div>
+              <div className="flex gap-2">
+                {(overviewHostelId || overviewMonth || overviewYear) && (
+                  <button
+                    onClick={() => {
+                      setOverviewHostelId("");
+                      setOverviewMonth("");
+                      setOverviewYear("");
+                    }}
+                    className="h-9 px-3 text-[10px] font-bold uppercase tracking-wider text-muted hover:text-red-500 border border-border rounded cursor-pointer transition flex items-center justify-center gap-1"
+                  >
+                    <X className="h-3.5 w-3.5" /> Clear Filters
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Error State */}
+            {errorStats ? (
+              <div className="glass-panel p-6 border-red-500/30 bg-red-50/10 text-center space-y-3 select-none">
+                <AlertTriangle className="h-8 w-8 text-red-500 mx-auto" />
+                <h4 className="text-xs font-bold text-red-600 uppercase tracking-wider">
+                  Failed to Load Electricity Overview
+                </h4>
+                <p className="text-[11px] text-muted max-w-md mx-auto">
+                  {(statsError as any)?.response?.data?.detail || (statsError as any)?.message || "Unable to retrieve electricity statistics from the server."}
+                </p>
+                <button
+                  onClick={() => refetchStats()}
+                  className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-primary text-white py-1.5 px-4 rounded hover:bg-primary-hover transition cursor-pointer"
+                >
+                  <RefreshCw className="h-3.5 w-3.5" /> Retry
+                </button>
+              </div>
+            ) : loadingStats ? (
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 animate-pulse select-none">
                 {[...Array(5)].map((_, i) => (
                   <div key={i} className="h-24 bg-white dark:bg-gray-900 border border-border rounded-card" />
                 ))}
@@ -284,31 +392,31 @@ export const ElectricityPage: React.FC = () => {
                 <div className="glass-card p-4.5">
                   <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Collection</span>
                   <span className="text-xl font-mono font-black text-emerald-600 mt-1 block drop-shadow-sm">
-                    ₹{Number(stats?.total_collection || 0).toLocaleString("en-IN")}
+                    ₹{Number(stats?.total_collection ?? stats?.total_collected ?? 0).toLocaleString("en-IN")}
                   </span>
                 </div>
                 <div className="glass-card p-4.5">
                   <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Outstanding</span>
                   <span className="text-xl font-mono font-black text-amber-600 mt-1 block drop-shadow-sm">
-                    ₹{Number(stats?.pending_bills_amount || 0).toLocaleString("en-IN")}
+                    ₹{Number(stats?.pending_bills_amount ?? 0).toLocaleString("en-IN")}
                   </span>
                 </div>
                 <div className="glass-card p-4.5">
                   <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Generated Today</span>
                   <span className="text-xl font-mono font-black text-blue-600 mt-1 block drop-shadow-sm">
-                    {stats?.today_generated_count || 0} bills
+                    {stats?.today_generated_count ?? 0} bills
                   </span>
                 </div>
                 <div className="glass-card p-4.5">
                   <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Paid Bills</span>
                   <span className="text-xl font-mono font-black text-emerald-600 mt-1 block drop-shadow-sm">
-                    {stats?.paid_bills_count || 0}
+                    {stats?.paid_bills_count ?? stats?.paid ?? 0}
                   </span>
                 </div>
-                <div className="glass-card p-4.5 animate-pulse border-red-500/30">
+                <div className="glass-card p-4.5 border-red-500/30">
                   <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Overdue Bills</span>
                   <span className="text-xl font-mono font-black text-red-600 mt-1 block drop-shadow-sm">
-                    {stats?.overdue_bills_count || 0}
+                    {stats?.overdue_bills_count ?? stats?.overdue ?? 0}
                   </span>
                 </div>
               </div>
@@ -858,12 +966,12 @@ export const ElectricityPage: React.FC = () => {
                   <div className="border border-border dark:border-gray-800 rounded-card overflow-hidden bg-gray-50 dark:bg-gray-955/50 h-56 flex items-center justify-center relative group">
                     {reviewBill.meter_photo ? (
                       <img
-                        src={reviewBill.meter_photo.startsWith("http") ? reviewBill.meter_photo : `http://localhost:8000${reviewBill.meter_photo}`}
+                        src={getMediaUrl(reviewBill.meter_photo)}
                         alt="Transaction Proof"
                         className="max-h-full max-w-full object-contain cursor-zoom-in"
                         onClick={() => {
-                          const url = reviewBill.meter_photo?.startsWith("http") ? reviewBill.meter_photo : `http://localhost:8000${reviewBill.meter_photo}`;
-                          window.open(url, "_blank");
+                          const url = getMediaUrl(reviewBill.meter_photo);
+                          if (url) window.open(url, "_blank");
                         }}
                       />
                     ) : (

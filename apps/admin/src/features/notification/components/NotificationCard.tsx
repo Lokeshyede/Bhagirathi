@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Notification } from "@bhagirathi/types";
-import { Receipt, CreditCard, Wrench, Megaphone, ShieldAlert, Check, Archive, Trash2 } from "lucide-react";
+import { Receipt, CreditCard, Wrench, Megaphone, ShieldAlert, Check, Archive, Trash2, Zap } from "lucide-react";
 import { NotificationBadge } from "./NotificationBadge";
 
 interface NotificationCardProps {
@@ -36,6 +36,8 @@ export const formatRelativeTime = (dateString: string): string => {
 
 const getModuleIcon = (module: string) => {
   switch (module.toUpperCase()) {
+    case "ELECTRICITY":
+      return <Zap className="h-5 w-5 text-amber-500" />;
     case "RENT":
       return <Receipt className="h-5 w-5 text-orange-600" />;
     case "PAYMENT":
@@ -55,6 +57,7 @@ const getModuleLink = (module: string, role: string) => {
 
   if (normRole === "ADMIN") {
     switch (normModule) {
+      case "ELECTRICITY": return "/electricity";
       case "RENT": return "/rent";
       case "PAYMENT": return "/payments";
       case "COMPLAINT": return "/complaints";
@@ -63,6 +66,7 @@ const getModuleLink = (module: string, role: string) => {
     }
   } else if (normRole === "TENANT") {
     switch (normModule) {
+      case "ELECTRICITY": return "/electricity";
       case "RENT": return "/rent-details";
       case "PAYMENT": return "/payment-history";
       case "COMPLAINT": return "/complaints";
@@ -72,6 +76,7 @@ const getModuleLink = (module: string, role: string) => {
   } else {
     // MAINTENANCE
     switch (normModule) {
+      case "ELECTRICITY": return "/electricity";
       case "COMPLAINT": return "/complaints";
       default: return "/dashboard";
     }
@@ -87,7 +92,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
 }) => {
   const isUnread = notification.status === "UNREAD";
   const isArchived = notification.status === "ARCHIVED";
-  const redirectLink = getModuleLink(notification.source_module, role);
+  const redirectLink = notification.link || getModuleLink(notification.source_module, role);
 
   return (
     <div
@@ -118,7 +123,15 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
             {formatRelativeTime(notification.created_at || "")}
           </span>
         </div>
-        <Link to={redirectLink} className="block group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors cursor-pointer">
+        <Link 
+          to={redirectLink}
+          onClick={() => {
+            if (isUnread) {
+              onMarkRead(notification.id);
+            }
+          }}
+          className="block group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors cursor-pointer"
+        >
           <h4 className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1">
             {notification.title}
           </h4>

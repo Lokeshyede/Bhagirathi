@@ -4,7 +4,7 @@ import { useAuthStore } from "../store/auth";
 import { useThemeStore } from "../store/theme";
 import {
   Sun, Moon, Building2, Users, Receipt, MessageSquare, Megaphone,
-  BarChart3, CreditCard, FileBarChart2, Settings, Zap, IndianRupee, Wrench, Shield, Brain, Clock, ShieldAlert, FileText, AlertTriangle, Sparkles
+  BarChart3, CreditCard, FileBarChart2, Settings, Zap, IndianRupee, Wrench, Shield, Brain, Clock, ShieldAlert, FileText, AlertTriangle, Sparkles, Archive
 } from "lucide-react";
 import { NotificationBell } from "../features/notification/components/NotificationBell";
 import { NotificationDrawer } from "../features/notification/components/NotificationDrawer";
@@ -34,6 +34,7 @@ const navGroups = [
       { name: "PG & Rooms", path: "/rooms", icon: Building2 },
       { name: "Room Availability", path: "/rooms/availability", icon: Building2 },
       { name: "Tenants", path: "/tenants", icon: Users },
+      { name: "Archived Tenants", path: "/tenants/archived", icon: Archive },
     ]
   },
   {

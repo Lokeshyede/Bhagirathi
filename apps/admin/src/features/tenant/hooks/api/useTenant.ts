@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@bhagirathi/api-client";
-import { Tenant, CheckInHistory, TenantDocument } from "@bhagirathi/types";
+import { Tenant, CheckInHistory, TenantDocument, ArchivedTenantsListResponse, ArchivedTenantDossier } from "@bhagirathi/types";
 
 export const useTenants = () => {
   return useQuery<Tenant[]>({
@@ -45,6 +45,50 @@ export const useTenantDocuments = (id?: string | null) => {
   });
 };
 
+export interface ArchivedTenantsQueryParams {
+  search?: string;
+  hostel_id?: string;
+  building_id?: string;
+  date_from?: string;
+  date_to?: string;
+  sort_by?: string;
+  page?: number;
+  limit?: number;
+}
+
+export const useArchivedTenants = (params?: ArchivedTenantsQueryParams) => {
+  return useQuery<ArchivedTenantsListResponse>({
+    queryKey: ["archived-tenants", params],
+    queryFn: async () => {
+      const searchParams = new URLSearchParams();
+      if (params?.search) searchParams.set("search", params.search);
+      if (params?.hostel_id) searchParams.set("hostel_id", params.hostel_id);
+      if (params?.building_id) searchParams.set("building_id", params.building_id);
+      if (params?.date_from) searchParams.set("date_from", params.date_from);
+      if (params?.date_to) searchParams.set("date_to", params.date_to);
+      if (params?.sort_by) searchParams.set("sort_by", params.sort_by);
+      if (params?.page) searchParams.set("page", String(params.page));
+      if (params?.limit) searchParams.set("limit", String(params.limit));
+
+      const queryString = searchParams.toString();
+      const url = queryString ? `/api/v1/tenants/archived?${queryString}` : "/api/v1/tenants/archived";
+      const response = await apiClient.get(url);
+      return response.data;
+    }
+  });
+};
+
+export const useArchivedTenantDossier = (id?: string | null) => {
+  return useQuery<ArchivedTenantDossier>({
+    queryKey: ["archived-tenant-dossier", id],
+    queryFn: async () => {
+      const response = await apiClient.get(`/api/v1/tenants/${id}/archive-details`);
+      return response.data;
+    },
+    enabled: !!id
+  });
+};
+
 // --- Mutations ---
 export const useTenantMutations = () => {
   const queryClient = useQueryClient();
@@ -77,8 +121,26 @@ export const useTenantMutations = () => {
     },
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["tenants"] });
+      queryClient.invalidateQueries({ queryKey: ["archived-tenants"] });
       queryClient.invalidateQueries({ queryKey: ["tenant", id] });
       queryClient.invalidateQueries({ queryKey: ["beds"] });
+      queryClient.invalidateQueries({ queryKey: ["rooms"] });
+      queryClient.invalidateQueries({ queryKey: ["hostel-availability"] });
+    }
+  });
+
+  const archiveTenant = useMutation({
+    mutationFn: async ({ id, reason }: { id: string; reason?: string }) => {
+      const response = await apiClient.post(`/api/v1/tenants/${id}/archive`, { reason });
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["tenants"] });
+      queryClient.invalidateQueries({ queryKey: ["archived-tenants"] });
+      queryClient.invalidateQueries({ queryKey: ["tenant", variables.id] });
+      queryClient.invalidateQueries({ queryKey: ["beds"] });
+      queryClient.invalidateQueries({ queryKey: ["rooms"] });
+      queryClient.invalidateQueries({ queryKey: ["hostel-availability"] });
     }
   });
 
@@ -121,13 +183,18 @@ export const useTenantMutations = () => {
   });
 
   const restoreTenant = useMutation({
-    mutationFn: async (id: string) => {
-      const response = await apiClient.post(`/api/v1/tenants/${id}/restore`);
+    mutationFn: async (params: string | { id: string; room_id?: string; bed_id?: string }) => {
+      const tenantId = typeof params === "string" ? params : params.id;
+      const body = typeof params === "string" ? {} : { room_id: params.room_id, bed_id: params.bed_id };
+      const response = await apiClient.post(`/api/v1/tenants/${tenantId}/restore`, body);
       return response.data;
     },
-    onSuccess: (_, id) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tenants"] });
-      queryClient.invalidateQueries({ queryKey: ["tenant", id] });
+      queryClient.invalidateQueries({ queryKey: ["archived-tenants"] });
+      queryClient.invalidateQueries({ queryKey: ["beds"] });
+      queryClient.invalidateQueries({ queryKey: ["rooms"] });
+      queryClient.invalidateQueries({ queryKey: ["hostel-availability"] });
     }
   });
 
@@ -240,6 +307,7 @@ export const useTenantMutations = () => {
     createTenantWithAccount,
     updateTenant,
     deleteTenant,
+    archiveTenant,
     restoreTenant,
     bulkImportTenants,
     checkinTenant,

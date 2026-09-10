@@ -7,8 +7,10 @@ import {
   RecentPaymentData,
   RecentComplaintData,
   RecentNoticeData,
-  ActivityLogData
+  ActivityLogData,
+  DashboardRentCollectionData
 } from "../../types";
+
 
 export interface DashboardFilters {
   dateRange: string;
@@ -149,3 +151,39 @@ export const useDashboardOccupancy = (filters: { hostelId?: string; buildingId?:
     }
   });
 };
+
+export interface DashboardRentCollectionFilters {
+  hostelId?: string;
+  buildingId?: string;
+  floorId?: string;
+  search?: string;
+  status?: string;
+}
+
+export const useDashboardRentCollection = (filters: DashboardRentCollectionFilters = {}) => {
+  return useQuery<DashboardRentCollectionData>({
+    queryKey: [
+      "dashboard",
+      "rent-collection",
+      filters.hostelId,
+      filters.buildingId,
+      filters.floorId,
+      filters.search,
+      filters.status,
+    ],
+    queryFn: async () => {
+      const response = await apiClient.get("/api/v1/dashboard/rent-collection", {
+        params: {
+          hostel_id: filters.hostelId || undefined,
+          building_id: filters.buildingId || undefined,
+          floor_id: filters.floorId || undefined,
+          search: filters.search?.trim() || undefined,
+          status: filters.status && filters.status !== "ALL" ? filters.status : undefined,
+        },
+      });
+      return response.data;
+    },
+    refetchInterval: 60_000,
+  });
+};
+

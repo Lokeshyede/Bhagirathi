@@ -102,7 +102,14 @@ export const NotificationDrawer: React.FC = () => {
           </div>
 
           {/* Drawer Scrollable Content */}
-          <div className="flex-1 overflow-y-auto p-6 scrollbar-none space-y-4">
+          <div 
+            className="flex-1 overflow-y-auto p-6 scrollbar-none space-y-4"
+            onClick={(e) => {
+              if ((e.target as HTMLElement).closest("a")) {
+                closeDrawer();
+              }
+            }}
+          >
             <div className="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-2">
               <span>Unread alerts</span>
               <Link to="/notifications" onClick={closeDrawer} className="text-red-650 hover:underline">

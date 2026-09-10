@@ -189,6 +189,7 @@ function useVerificationMutation<TVariables>(
     ["rent-collection-summary"],   // useRentCollectionSummary()
     ["rent-alert-today"],          // useTodayRentAlert()
     ["rent-alert-summary"],        // useRentAlertSummary()
+    ["dashboard", "rent-collection"], // useDashboardRentCollection()
     // Tenant obligation (used in Admin collection modal + Tenant portal)
     ["tenant-current-obligation"], // useTenantCurrentObligation()
     ["tenant-payment-history"],    // (if used)

@@ -212,6 +212,15 @@ export interface Tenant extends BaseEntity {
   hostel_id?: string | null;
   room_id?: string | null;
   bed_id?: string | null;
+
+  archived_at?: string | null;
+  archived_by?: string | null;
+  archived_by_name?: string | null;
+  archive_reason?: string | null;
+  original_status?: string | null;
+  last_room_id?: string | null;
+  last_bed_id?: string | null;
+  last_hostel_id?: string | null;
 }
 
 export type RentStatus = "PENDING" | "PARTIALLY_PAID" | "PAID" | "OVERDUE" | "CANCELLED";
@@ -479,8 +488,11 @@ export interface Notification extends BaseEntity {
   message: string;
   type: "INFO" | "SUCCESS" | "WARNING" | "ERROR";
   status: "UNREAD" | "READ" | "ARCHIVED";
-  source_module: "RENT" | "PAYMENT" | "COMPLAINT" | "NOTICE" | "SYSTEM";
+  source_module: "RENT" | "PAYMENT" | "COMPLAINT" | "NOTICE" | "SYSTEM" | "ELECTRICITY";
   reference_id?: string | null;
+  reference_type?: string | null;
+  link?: string | null;
+  notif_meta?: Record<string, any> | null;
   read_at?: string | null;
   archived_at?: string | null;
 }
@@ -590,5 +602,221 @@ export interface ElectricityDashboardStats {
   paid_bills_count: number;
   overdue_bills_count: number;
   monthly_revenue: { month: number; year: number; amount: number }[];
+  total_collected?: number;
+  total?: number;
+  pending?: number;
+  paid?: number;
+  overdue?: number;
+  total_amount?: number;
 }
+
+export interface ArchivedTenantItem {
+  id: string;
+  tenant_id: string;
+  full_name: string;
+  phone: string;
+  email: string;
+  photo_url?: string | null;
+  gender?: string | null;
+  status: string;
+  original_status?: string | null;
+  archived_at?: string | null;
+  archived_by?: string | null;
+  archived_by_name?: string | null;
+  archive_reason?: string | null;
+  last_room_number?: string | null;
+  last_bed_number?: string | null;
+  last_hostel_name?: string | null;
+  last_building_name?: string | null;
+  last_floor_name?: string | null;
+  joining_date?: string | null;
+  created_at: string;
+}
+
+export interface ArchivedTenantsListResponse {
+  items: ArchivedTenantItem[];
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+}
+
+export interface ArchivedTenantDossier {
+  tenant: {
+    id: string;
+    tenant_id: string;
+    full_name: string;
+    phone: string;
+    email: string;
+    photo_url?: string | null;
+    gender?: string | null;
+    dob?: string | null;
+    aadhaar_number?: string | null;
+    guardian_name?: string | null;
+    guardian_phone?: string | null;
+    emergency_contact?: string | null;
+    permanent_address?: string | null;
+    current_address?: string | null;
+    occupation?: string | null;
+    company_college?: string | null;
+    blood_group?: string | null;
+    joining_date?: string | null;
+    status: string;
+    original_status?: string | null;
+    is_active: boolean;
+    archived_at?: string | null;
+    archived_by?: string | null;
+    archived_by_name?: string | null;
+    archive_reason?: string | null;
+    created_at?: string | null;
+    updated_at?: string | null;
+  };
+  room_history: Array<{
+    id: string;
+    room_id: string;
+    room_number: string;
+    bed_id?: string | null;
+    bed_number: string;
+    floor_name: string;
+    building_name: string;
+    hostel_name: string;
+    start_date?: string | null;
+    end_date?: string | null;
+    allocation_type: string;
+    is_active: boolean;
+    status: string;
+  }>;
+  rent_history: Array<{
+    id: string;
+    rent_month: number;
+    rent_year: number;
+    amount: number;
+    monthly_rent: number;
+    security_deposit: number;
+    discount: number;
+    late_fee: number;
+    previous_balance: number;
+    total_amount: number;
+    paid_amount: number;
+    outstanding_amount: number;
+    due_date?: string | null;
+    status: string;
+    remarks?: string | null;
+    created_at?: string | null;
+  }>;
+  payment_history: Array<{
+    id: string;
+    amount: number;
+    total_amount: number;
+    rent_share: number;
+    electricity_share: number;
+    other_charges: number;
+    fine: number;
+    security_deposit: number;
+    payment_date?: string | null;
+    submission_date?: string | null;
+    verification_date?: string | null;
+    payment_method: string;
+    payment_status: string;
+    verification_status: string;
+    transaction_id?: string | null;
+    utr?: string | null;
+    proof_image_url?: string | null;
+    payment_reference?: string | null;
+    payment_type?: string | null;
+    billing_month?: string | null;
+    billing_year?: number | null;
+    created_at?: string | null;
+  }>;
+  electricity_bills: Array<{
+    id: string;
+    room_id: string;
+    room_number: string;
+    bill_month: number;
+    bill_year: number;
+    billing_month: string;
+    bill_amount: number;
+    status: string;
+    previous_reading: number;
+    current_reading: number;
+    units: number;
+    unit_rate: number;
+    due_date?: string | null;
+    occupant_count: number;
+    created_at?: string | null;
+  }>;
+  electricity_payments: Array<{
+    id: string;
+    payment_id: string;
+    amount: number;
+    payment_date?: string | null;
+    payment_method: string;
+    verification_status: string;
+    transaction_id?: string | null;
+    billing_month?: string | null;
+    billing_year?: number | null;
+    created_at?: string | null;
+  }>;
+  complaints: Array<{
+    id: string;
+    title: string;
+    category: string;
+    priority: string;
+    status: string;
+    description: string;
+    resolution_notes?: string | null;
+    resolution_time?: number | null;
+    created_at?: string | null;
+    updated_at?: string | null;
+    updates: Array<{
+      id: string;
+      status: string;
+      update_notes: string;
+      updater_name: string;
+      created_at?: string | null;
+    }>;
+  }>;
+  contracts: Array<{
+    id: string;
+    contract_number: string;
+    room_id?: string | null;
+    room_number: string;
+    start_date?: string | null;
+    end_date?: string | null;
+    rent_amount: number;
+    security_deposit: number;
+    agreement_url?: string | null;
+    status: string;
+    created_at?: string | null;
+  }>;
+  documents: Array<{
+    id: string;
+    document_type: string;
+    document_url: string;
+    status: string;
+    created_at?: string | null;
+  }>;
+  receipts: Array<{
+    id: string;
+    receipt_number: string;
+    receipt_type: string;
+    pdf_url?: string | null;
+    status: string;
+    generated_at?: string | null;
+    verification_url?: string | null;
+    payment_id: string;
+  }>;
+  audit_history: Array<{
+    id: string;
+    action: string;
+    table_name: string;
+    record_id?: string | null;
+    old_values?: any;
+    new_values?: any;
+    actor_name: string;
+    created_at?: string | null;
+  }>;
+}
+
+
 
