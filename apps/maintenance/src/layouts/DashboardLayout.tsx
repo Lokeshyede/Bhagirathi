@@ -50,7 +50,7 @@ export const DashboardLayout: React.FC = () => {
       {/* 1. Left Sidebar for Desktop (md and above) */}
       <aside className="hidden md:flex flex-col w-64 border-r border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shrink-0 select-none shadow-sm z-30">
         <div className="flex h-16 items-center gap-3 px-5 border-b border-slate-100 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-          <BhagirathiLogo size="md" className="h-9 w-auto max-h-[36px] shrink-0" />
+          <BhagirathiLogo size="md" className="h-9 w-9 shrink-0" />
           <div className="min-w-0">
             <span className="block text-[9px] font-black text-red-600 dark:text-red-500 uppercase tracking-widest leading-none truncate">Bhagirathi Staff</span>
             <span className="block text-xs font-black text-stone-800 dark:text-white mt-1 leading-none truncate">Maintenance Portal</span>
@@ -137,7 +137,7 @@ export const DashboardLayout: React.FC = () => {
           <div className="flex items-center gap-2.5">
             {/* Desktop header logo */}
             <div className="hidden md:flex items-center mr-1">
-              <BhagirathiLogo size="sm" className="h-8 w-auto max-h-[32px]" />
+              <BhagirathiLogo size="sm" className="h-8 w-8" />
             </div>
 
             {/* Notifications Trigger */}
@@ -164,7 +164,7 @@ export const DashboardLayout: React.FC = () => {
 
             {/* Mobile Small Bhagirathi Logo on the RIGHT SIDE (approx 28–36px) */}
             <div className="md:hidden flex items-center shrink-0 ml-1">
-              <BhagirathiLogo size="xs" className="h-7 w-auto max-h-[28px]" />
+              <BhagirathiLogo size="xs" className="h-7 w-7" />
             </div>
           </div>
 

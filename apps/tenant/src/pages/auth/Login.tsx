@@ -108,7 +108,7 @@ export const Login: React.FC = () => {
         <div className="flex flex-col items-center select-none text-center">
           {/* Logo Container */}
           <div className="mb-4">
-            <BhagirathiLogo size="xl" className="h-20 w-auto max-h-[80px]" />
+            <BhagirathiLogo size="xl" className="h-20 w-20" />
           </div>
           
           {/* Brand Name */}

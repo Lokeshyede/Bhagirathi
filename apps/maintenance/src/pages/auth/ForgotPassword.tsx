@@ -52,7 +52,7 @@ export const ForgotPassword: React.FC = () => {
         className="w-full max-w-md bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl shadow-lg overflow-hidden p-8 relative z-10 space-y-6"
       >
         <div className="flex flex-col items-center text-center">
-          <BhagirathiLogo size="lg" className="h-12 w-auto max-h-[48px] mb-3.5" />
+          <BhagirathiLogo size="lg" className="h-12 w-12 mb-3.5" />
           <h2 className="text-xl font-black text-stone-900 dark:text-white uppercase tracking-wider leading-tight">
             Forgot Password
           </h2>

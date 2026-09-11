@@ -42,8 +42,8 @@ export const ForgotPassword: React.FC = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-zinc-955 p-4 transition-colors select-none">
       <div className="w-full max-w-md bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl shadow-lg p-8 space-y-6">
-        <div className="flex flex-col items-center">
-          <BhagirathiLogo size="lg" className="h-12 w-auto max-h-[48px] mb-4" />
+        <div className="flex flex-col items-center mb-8">
+          <BhagirathiLogo size="lg" className="h-12 w-12 mb-4" />
           <h2 className="text-xl font-black text-stone-850 dark:text-white uppercase tracking-wider">
             Forgot Password
           </h2>

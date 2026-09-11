@@ -94,7 +94,7 @@ export const ForceChangePassword: React.FC = () => {
         className="max-w-md w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl shadow-lg p-6 space-y-6 relative z-10"
       >
         <div className="flex flex-col items-center justify-center text-center">
-          <BhagirathiLogo size="lg" className="h-12 w-auto max-h-[48px] mb-3.5" />
+          <BhagirathiLogo size="lg" className="h-12 w-12 mb-3.5" />
           <h2 className="text-xl font-black text-stone-900 dark:text-white uppercase tracking-wider">
             Create Secure Password
           </h2>

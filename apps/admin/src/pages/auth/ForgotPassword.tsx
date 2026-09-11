@@ -50,7 +50,7 @@ export const ForgotPassword: React.FC = () => {
       >
         {/* Brand */}
         <div className="flex flex-col items-center mb-8">
-          <BhagirathiLogo size="lg" className="h-12 w-auto max-h-[48px] mb-3" />
+          <BhagirathiLogo size="lg" className="h-12 w-12 mb-3" />
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">Bhagirathi Admin</h1>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Hostel & PG Management</p>
         </div>

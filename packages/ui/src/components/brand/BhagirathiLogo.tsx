@@ -10,19 +10,19 @@ export interface BhagirathiLogoProps extends React.ImgHTMLAttributes<HTMLImageEl
 }
 
 const sizeClasses: Record<string, string> = {
-  xs: "h-7 w-auto max-h-[28px]",
-  sm: "h-8 w-auto max-h-[32px]",
-  md: "h-10 w-auto max-h-[40px]",
-  lg: "h-12 w-auto max-h-[48px]",
-  xl: "h-20 w-auto max-h-[80px]",
-  "2xl": "h-24 w-auto max-h-[96px]",
+  xs: "h-7 w-7 min-w-[28px]",
+  sm: "h-8 w-8 min-w-[32px]",
+  md: "h-9 w-9 min-w-[36px]",
+  lg: "h-10 w-10 min-w-[40px]",
+  xl: "h-20 w-20 min-w-[80px]",
+  "2xl": "h-24 w-24 min-w-[96px]",
   custom: "",
 };
 
 export const BhagirathiLogo: React.FC<BhagirathiLogoProps> = ({
   size = "md",
   className,
-  alt = "Bhagirathi Hostel & PG",
+  alt = "Bhagirathi",
   ...props
 }) => {
   return (

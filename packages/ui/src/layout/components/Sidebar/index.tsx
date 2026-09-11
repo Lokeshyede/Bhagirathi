@@ -71,10 +71,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               customLogo
             ) : (
               <BhagirathiLogo
-                size={collapsed ? "xs" : "md"}
+                size={collapsed ? "sm" : "md"}
                 className={cn(
                   "shrink-0",
-                  collapsed ? "h-7 w-auto max-h-[28px]" : "h-10 w-auto max-h-[40px]"
+                  collapsed ? "h-8 w-8" : "h-9 w-9"
                 )}
               />
             )}
