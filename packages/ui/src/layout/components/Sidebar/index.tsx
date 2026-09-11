@@ -4,11 +4,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "../../../design-system/utils";
 import { Navigation } from "../Navigation";
 import { NavGroup, UserProfile } from "../../types";
+import { BhagirathiLogo } from "../../../components/brand";
 
 export interface SidebarProps {
   brandName: string;
   portalName: string;
-  brandIcon: any; // Lucide Icon or SVG Component
+  brandIcon?: any; // Optional icon fallback
+  customLogo?: React.ReactNode;
   groups: NavGroup[];
   activePath: string;
   user: UserProfile | null;
@@ -32,6 +34,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   brandName,
   portalName,
   brandIcon: BrandIcon = Building2,
+  customLogo,
   groups,
   activePath,
   user,
@@ -64,11 +67,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Brand Header */}
         <div className="flex h-16 items-center justify-between px-4 border-b border-border flex-shrink-0 dark:border-gray-900">
           <div className="flex items-center gap-2.5 overflow-hidden">
-            <div className="h-8 w-8 bg-primary rounded-icon flex items-center justify-center shadow-glow-primary shrink-0 text-white">
-              <BrandIcon className="h-4.5 w-4.5" />
-            </div>
+            {customLogo ? (
+              customLogo
+            ) : (
+              <BhagirathiLogo
+                size={collapsed ? "xs" : "md"}
+                className={cn(
+                  "shrink-0",
+                  collapsed ? "h-7 w-auto max-h-[28px]" : "h-10 w-auto max-h-[40px]"
+                )}
+              />
+            )}
             {!collapsed && (
-              <div className="overflow-hidden">
+              <div className="overflow-hidden min-w-0">
                 <p className="text-xs font-bold text-text-primary dark:text-white leading-tight truncate">
                   {brandName}
                 </p>

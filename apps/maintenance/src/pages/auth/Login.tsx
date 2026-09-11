@@ -6,10 +6,9 @@ import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { loginSchema, LoginInput } from "@bhagirathi/validation";
 import { apiClient } from "@bhagirathi/api-client";
 import { UserRole } from "@bhagirathi/constants";
-import { Button } from "@bhagirathi/ui";
+import { Button, BhagirathiLogo } from "@bhagirathi/ui";
 import { useAuthStore } from "../../store/auth";
 import {
-  Building2,
   ShieldAlert,
   Eye,
   EyeOff
@@ -108,8 +107,8 @@ export const Login: React.FC = () => {
         {/* Branding header */}
         <div className="flex flex-col items-center select-none text-center">
           {/* Logo Container */}
-          <div className="h-12 w-12 bg-[#E53935] text-white flex items-center justify-center rounded-2xl shadow-sm mb-4">
-            <Building2 className="h-6 w-6" />
+          <div className="mb-4">
+            <BhagirathiLogo size="xl" className="h-20 w-auto max-h-[80px]" />
           </div>
           
           {/* Brand Name */}
@@ -119,7 +118,7 @@ export const Login: React.FC = () => {
           
           {/* Portal Label */}
           <span className="text-[11px] font-black text-[#64748B] dark:text-zinc-400 uppercase tracking-widest mt-2.5">
-            Staff Portal
+            Maintenance Portal
           </span>
           
           {/* Welcome Text */}

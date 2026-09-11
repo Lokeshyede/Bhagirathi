@@ -24,3 +24,4 @@ export * from "./tables";
 export * from "./tree";
 export * from "./charts";
 export * from "./layout";
+export * from "./brand";

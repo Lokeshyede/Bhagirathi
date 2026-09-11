@@ -5,8 +5,8 @@ import { useMutation } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { forgotPasswordSchema, ForgotPasswordInput } from "@bhagirathi/validation";
 import { apiClient } from "@bhagirathi/api-client";
-import { Button, Input } from "@bhagirathi/ui";
-import { Building2, ArrowLeft, CheckCircle, Mail, ShieldAlert } from "lucide-react";
+import { Button, Input, BhagirathiLogo } from "@bhagirathi/ui";
+import { ArrowLeft, CheckCircle, Mail, ShieldAlert } from "lucide-react";
 import { motion } from "framer-motion";
 
 export const ForgotPassword: React.FC = () => {
@@ -50,9 +50,7 @@ export const ForgotPassword: React.FC = () => {
       >
         {/* Brand */}
         <div className="flex flex-col items-center mb-8">
-          <div className="h-12 w-12 rounded-xl bg-red-600 text-white flex items-center justify-center shadow-lg shadow-red-500/25 mb-3">
-            <Building2 className="h-6 w-6" />
-          </div>
+          <BhagirathiLogo size="lg" className="h-12 w-auto max-h-[48px] mb-3" />
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">Bhagirathi Admin</h1>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Hostel & PG Management</p>
         </div>

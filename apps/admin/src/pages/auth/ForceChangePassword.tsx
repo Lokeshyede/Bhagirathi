@@ -5,9 +5,9 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { forceChangePasswordSchema, ForceChangePasswordInput } from "@bhagirathi/validation";
 import { apiClient } from "@bhagirathi/api-client";
-import { Button, Input } from "@bhagirathi/ui";
+import { Button, Input, BhagirathiLogo } from "@bhagirathi/ui";
 import { useAuthStore } from "../../store/auth";
-import { ShieldAlert, CheckCircle, Building2 } from "lucide-react";
+import { ShieldAlert, CheckCircle } from "lucide-react";
 
 export const ForceChangePassword: React.FC = () => {
   const navigate = useNavigate();
@@ -85,9 +85,7 @@ export const ForceChangePassword: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-955 px-4 py-12">
       <div className="max-w-md w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-md p-6 space-y-6">
         <div className="flex flex-col items-center justify-center text-center">
-          <div className="h-12 w-12 rounded-xl bg-red-500 text-white flex items-center justify-center shadow-lg shadow-red-500/25 mb-4">
-            <Building2 className="h-6 w-6" />
-          </div>
+          <BhagirathiLogo size="lg" className="h-12 w-auto max-h-[48px] mb-4" />
           <h2 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-wider">
             Create Secure Password
           </h2>

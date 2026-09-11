@@ -10,7 +10,7 @@ export interface AppPreferences {
 export interface HostelProfile {
   id: string;
   hostel_name: string;
-  hostel_logo: string | null;
+  hostel_logo?: string | null;
   owner_name: string;
   mobile: string;
   email: string;

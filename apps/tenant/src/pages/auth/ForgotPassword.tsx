@@ -5,8 +5,8 @@ import { useMutation } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { forgotPasswordSchema, ForgotPasswordInput } from "@bhagirathi/validation";
 import { apiClient } from "@bhagirathi/api-client";
-import { Button, Input } from "@bhagirathi/ui";
-import { Building2, ArrowLeft, CheckCircle } from "lucide-react";
+import { Button, Input, BhagirathiLogo } from "@bhagirathi/ui";
+import { ArrowLeft, CheckCircle } from "lucide-react";
 
 export const ForgotPassword: React.FC = () => {
   const [isSuccess, setIsSuccess] = useState(false);
@@ -43,9 +43,7 @@ export const ForgotPassword: React.FC = () => {
     <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-zinc-955 p-4 transition-colors select-none">
       <div className="w-full max-w-md bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl shadow-lg p-8 space-y-6">
         <div className="flex flex-col items-center">
-          <div className="h-12 w-12 rounded-2xl bg-red-50 dark:bg-red-955/20 text-red-655 flex items-center justify-center shadow-sm mb-4">
-            <Building2 className="h-6 w-6" />
-          </div>
+          <BhagirathiLogo size="lg" className="h-12 w-auto max-h-[48px] mb-4" />
           <h2 className="text-xl font-black text-stone-850 dark:text-white uppercase tracking-wider">
             Forgot Password
           </h2>

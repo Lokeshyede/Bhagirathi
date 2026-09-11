@@ -17,6 +17,7 @@ import {
 import { NotificationBell } from "../features/notification/components/NotificationBell";
 import { NotificationDrawer } from "../features/notification/components/NotificationDrawer";
 import { motion, AnimatePresence } from "framer-motion";
+import { BhagirathiLogo } from "@bhagirathi/ui";
 
 export const DashboardLayout: React.FC = () => {
   const user = useAuthStore((state) => state.user);
@@ -49,9 +50,7 @@ export const DashboardLayout: React.FC = () => {
       {/* 1. Left Sidebar for Desktop (md and above) */}
       <aside className="hidden md:flex flex-col w-64 border-r border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shrink-0 select-none shadow-sm z-30">
         <div className="flex h-16 items-center gap-3 px-5 border-b border-slate-100 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-          <div className="h-9 w-9 rounded-xl bg-red-600/10 border border-red-600/20 text-red-600 flex items-center justify-center font-black text-sm uppercase shrink-0">
-            {user?.full_name?.charAt(0) || "M"}
-          </div>
+          <BhagirathiLogo size="md" className="h-9 w-auto max-h-[36px] shrink-0" />
           <div className="min-w-0">
             <span className="block text-[9px] font-black text-red-600 dark:text-red-500 uppercase tracking-widest leading-none truncate">Bhagirathi Staff</span>
             <span className="block text-xs font-black text-stone-800 dark:text-white mt-1 leading-none truncate">Maintenance Portal</span>
@@ -88,31 +87,30 @@ export const DashboardLayout: React.FC = () => {
 
         <div className="p-4 border-t border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-widest">Theme Mode</span>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="h-8 w-8 rounded-full bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 flex items-center justify-center text-xs font-black text-stone-700 dark:text-stone-300 shrink-0">
+                {user?.full_name?.charAt(0) || "M"}
+              </div>
+              <div className="min-w-0">
+                <span className="block text-xs font-black text-stone-800 dark:text-white truncate">{user?.full_name || "Staff Officer"}</span>
+                <span className="block text-[10px] font-bold text-stone-400 capitalize truncate">{user?.role?.toLowerCase() || "Maintenance"}</span>
+              </div>
+            </div>
+            
             <button
-              onClick={toggleTheme}
-              className="p-2 rounded-xl text-stone-500 dark:text-stone-400 bg-slate-50 hover:bg-slate-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 transition-colors cursor-pointer outline-none border border-slate-200 dark:border-zinc-700"
-              aria-label="Toggle theme"
+              onClick={handleLogout}
+              className="p-2 rounded-xl text-stone-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/20 dark:hover:text-red-400 transition-colors cursor-pointer outline-none"
+              title="Logout"
             >
-              {isDarkMode ? (
-                <Sun className="h-4 w-4 text-amber-500 fill-amber-500" />
-              ) : (
-                <Moon className="h-4 w-4 text-slate-700" />
-              )}
+              <LogOut className="h-[18px] w-[18px] text-stone-400" />
             </button>
           </div>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-[11px] font-black uppercase tracking-wider text-stone-500 hover:bg-red-50 hover:text-red-600 dark:text-stone-400 dark:hover:bg-red-950/20 dark:hover:text-red-400 transition-colors cursor-pointer outline-none border border-transparent hover:border-red-100 dark:hover:border-red-900/30"
-          >
-            <LogOut className="h-[18px] w-[18px] text-stone-400" />
-            <span>Sign Out</span>
-          </button>
         </div>
       </aside>
 
-      {/* 2. Main Page Layout (Header + Content + Mobile Bottom Tab Bar) */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden">
+      {/* 2. Main Body Container */}
+      <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-50 dark:bg-zinc-950">
+        
         {/* Sticky Top Header */}
         <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-slate-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md px-4 sm:px-6 select-none shadow-sm">
           {/* Brand/Hamburger Menu trigger for mobile */}
@@ -125,14 +123,10 @@ export const DashboardLayout: React.FC = () => {
               {isMobileMenuOpen ? <X className="h-[18px] w-[18px]" /> : <Menu className="h-[18px] w-[18px]" />}
             </button>
             
-            <div className="md:hidden flex items-center gap-2">
-              <div className="h-[34px] w-[34px] rounded-lg bg-red-600/10 border border-red-600/20 text-red-600 flex items-center justify-center font-black text-xs uppercase shrink-0">
-                {user?.full_name?.charAt(0) || "M"}
-              </div>
-              <span className="text-xs font-black text-stone-900 dark:text-white uppercase tracking-wider truncate max-w-[120px]">
-                {user?.full_name?.split(" ")[0]}
-              </span>
-            </div>
+            {/* Mobile staff officer greeting */}
+            <span className="md:hidden text-xs font-bold text-stone-900 dark:text-white uppercase tracking-wider truncate max-w-[120px]">
+              {user?.full_name?.split(" ")[0] || "Staff"}
+            </span>
             
             {/* Desktop header label */}
             <span className="hidden md:inline text-[11px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-widest select-none truncate max-w-sm">
@@ -141,6 +135,11 @@ export const DashboardLayout: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2.5">
+            {/* Desktop header logo */}
+            <div className="hidden md:flex items-center mr-1">
+              <BhagirathiLogo size="sm" className="h-8 w-auto max-h-[32px]" />
+            </div>
+
             {/* Notifications Trigger */}
             <div className="relative">
               <NotificationBell />
@@ -162,7 +161,13 @@ export const DashboardLayout: React.FC = () => {
                 <LogOut className="h-[18px] w-[18px]" />
               </button>
             </div>
+
+            {/* Mobile Small Bhagirathi Logo on the RIGHT SIDE (approx 28–36px) */}
+            <div className="md:hidden flex items-center shrink-0 ml-1">
+              <BhagirathiLogo size="xs" className="h-7 w-auto max-h-[28px]" />
+            </div>
           </div>
+
         </header>
 
         {/* Mobile menu overlay/panel */}
@@ -185,7 +190,10 @@ export const DashboardLayout: React.FC = () => {
                 className="fixed inset-y-0 left-0 top-16 w-4/5 max-w-sm z-30 flex md:hidden bg-white dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 flex-col p-5 space-y-4 shadow-xl select-none"
               >
                 <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-zinc-800">
-                  <span className="text-[10px] font-black uppercase text-stone-400 dark:text-stone-550 tracking-wider">Staff Navigation</span>
+                  <div className="flex items-center gap-2">
+                    <BhagirathiLogo size="xs" className="h-6 w-6 ring-1 ring-slate-200 dark:ring-zinc-700 shrink-0" />
+                    <span className="text-xs font-black uppercase text-stone-800 dark:text-white tracking-wider">Bhagirathi Staff</span>
+                  </div>
                   <button onClick={() => setIsMobileMenuOpen(false)} className="p-1 rounded text-stone-400 hover:text-stone-600">
                     <X className="h-4 w-4" />
                   </button>

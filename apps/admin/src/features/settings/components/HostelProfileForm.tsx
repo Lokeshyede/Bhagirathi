@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as zod from "zod";
 import { Input, Button } from "@bhagirathi/ui";
 import { useHostelProfile, useUpdateHostelProfile } from "../hooks/useSettings";
-import { ImageUploader } from "./ImageUploader";
 import { ShieldAlert, CheckCircle } from "lucide-react";
 
 const hostelProfileSchema = zod.object({
@@ -25,7 +24,6 @@ type HostelProfileFormValues = zod.infer<typeof hostelProfileSchema>;
 export const HostelProfileForm: React.FC = () => {
   const { data: profile, isLoading } = useHostelProfile();
   const updateMutation = useUpdateHostelProfile();
-  const [logoFile, setLogoFile] = useState<File | null>(null);
   
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -73,13 +71,9 @@ export const HostelProfileForm: React.FC = () => {
       fd.append("pincode", values.pincode);
       if (values.gst_number) fd.append("gst_number", values.gst_number);
       if (values.description) fd.append("description", values.description);
-      if (logoFile) {
-        fd.append("logo_file", logoFile);
-      }
 
       await updateMutation.mutateAsync(fd);
       setSuccessMsg("Hostel profile parameters saved successfully!");
-      setLogoFile(null); // Reset file selection
     } catch (err: any) {
       setErrorMsg(err?.response?.data?.detail || "Failed to update hostel profile.");
     }
@@ -100,7 +94,6 @@ export const HostelProfileForm: React.FC = () => {
         gst_number: profile.gst_number || "",
         description: profile.description || ""
       });
-      setLogoFile(null);
     }
     setErrorMsg(null);
     setSuccessMsg(null);
@@ -131,16 +124,6 @@ export const HostelProfileForm: React.FC = () => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {/* Logo upload */}
-        <div className="md:col-span-2">
-          <ImageUploader
-            label="Hostel Logo Image"
-            currentImageUrl={profile?.hostel_logo || null}
-            onFileSelect={setLogoFile}
-            maxSizeMB={2}
-          />
-        </div>
-
         <Input
           label="Hostel Name *"
           placeholder="e.g. Bhagirathi Premium Hostel"

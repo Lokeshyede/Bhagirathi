@@ -23,6 +23,7 @@ import {
 import { NotificationBell } from "../features/notification/components/NotificationBell";
 import { NotificationDrawer } from "../features/notification/components/NotificationDrawer";
 import { motion, AnimatePresence } from "framer-motion";
+import { BhagirathiLogo } from "@bhagirathi/ui";
 
 export const DashboardLayout: React.FC = () => {
   const user = useAuthStore((state) => state.user);
@@ -63,8 +64,6 @@ export const DashboardLayout: React.FC = () => {
     { name: "Profile", path: "/profile", icon: User },
   ];
 
-  const initials = (user?.full_name || "Tenant").charAt(0).toUpperCase();
-
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-slate-50 dark:bg-[#0a0a0a] font-sans text-stone-900 dark:text-stone-100 antialiased">
       {/* Notifications Drawer Component */}
@@ -74,9 +73,7 @@ export const DashboardLayout: React.FC = () => {
       <aside className="hidden md:flex flex-col w-64 shrink-0 z-30 sidebar-glass border-r border-white/5">
         {/* Logo / Brand area */}
         <div className="flex h-16 items-center gap-3 px-5 border-b border-white/5">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center font-black text-sm text-white shrink-0 shadow-lg shadow-red-900/40">
-            {initials}
-          </div>
+          <BhagirathiLogo size="md" className="h-9 w-auto max-h-[36px] shrink-0" />
           <div className="min-w-0">
             <span className="block text-[9px] font-black text-red-400 uppercase tracking-widest leading-none truncate">
               Bhagirathi PG
@@ -153,7 +150,7 @@ export const DashboardLayout: React.FC = () => {
 
         {/* Sticky Top Header */}
         <header className="sticky top-0 z-40 flex h-14 w-full items-center justify-between bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/5 px-4 sm:px-6 select-none">
-          {/* Left: Hamburger + Brand */}
+          {/* Left: Hamburger + Greeting */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -163,15 +160,10 @@ export const DashboardLayout: React.FC = () => {
               {isMobileMenuOpen ? <X className="h-4.5 w-4.5" /> : <Menu className="h-4.5 w-4.5" />}
             </button>
 
-            {/* Mobile brand */}
-            <div className="md:hidden flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center font-black text-xs text-white shadow-md shadow-red-900/20">
-                {initials}
-              </div>
-              <span className="text-xs font-black text-stone-900 dark:text-white uppercase tracking-wider truncate max-w-[110px]">
-                {(user?.full_name || "Tenant").split(" ")[0]}
-              </span>
-            </div>
+            {/* Mobile user greeting */}
+            <span className="md:hidden text-xs font-bold text-stone-900 dark:text-white uppercase tracking-wider truncate max-w-[120px]">
+              {(user?.full_name || "Resident").split(" ")[0]}
+            </span>
 
             {/* Desktop label */}
             <div className="hidden md:flex items-center gap-2">
@@ -183,8 +175,13 @@ export const DashboardLayout: React.FC = () => {
             </div>
           </div>
 
-          {/* Right: Notification + Theme + Logout */}
+          {/* Right: Notification + Theme + Logout + Fixed Logo */}
           <div className="flex items-center gap-2">
+            {/* Desktop header logo */}
+            <div className="hidden md:flex items-center mr-1">
+              <BhagirathiLogo size="sm" className="h-8 w-auto max-h-[32px]" />
+            </div>
+
             <div className="relative">
               <NotificationBell />
             </div>
@@ -204,6 +201,11 @@ export const DashboardLayout: React.FC = () => {
               >
                 <LogOut className="h-4.5 w-4.5" />
               </button>
+            </div>
+
+            {/* Mobile Small Bhagirathi Logo on the RIGHT SIDE (approx 28–36px) */}
+            <div className="md:hidden flex items-center shrink-0 ml-1">
+              <BhagirathiLogo size="xs" className="h-7 w-auto max-h-[28px]" />
             </div>
           </div>
         </header>
@@ -229,7 +231,10 @@ export const DashboardLayout: React.FC = () => {
                 className="fixed inset-y-0 left-0 top-14 w-4/5 max-w-sm z-30 flex md:hidden sidebar-glass flex-col p-4 space-y-1 shadow-2xl border-r border-white/5 select-none"
               >
                 <div className="flex items-center justify-between px-3 pb-3 border-b border-white/8 mb-2">
-                  <span className="text-[10px] font-black uppercase text-stone-500 tracking-wider">Navigation</span>
+                  <div className="flex items-center gap-2">
+                    <BhagirathiLogo size="xs" className="h-6 w-6 ring-1 ring-white/10 shrink-0" />
+                    <span className="text-xs font-black uppercase text-white tracking-wider">Bhagirathi PG</span>
+                  </div>
                   <button onClick={() => setIsMobileMenuOpen(false)} className="p-1 rounded text-stone-500 hover:text-white transition-colors">
                     <X className="h-4 w-4" />
                   </button>

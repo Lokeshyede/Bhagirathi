@@ -13,7 +13,7 @@ export const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<SettingsTab>("HOSTEL");
 
   const tabs = [
-    { id: "HOSTEL" as SettingsTab, name: "Hostel Profile", icon: Building, desc: "Manage logo, contact details, owner credentials, and general address." },
+    { id: "HOSTEL" as SettingsTab, name: "Hostel Profile", icon: Building, desc: "Manage contact details, owner credentials, and general address." },
     { id: "PAYMENT" as SettingsTab, name: "UPI Payments Settings", icon: CreditCard, desc: "Configure merchant UPI ID, account holder bank details, and QR codes." },
     { id: "PROFILE" as SettingsTab, name: "Admin Account Profile", icon: User, desc: "Edit name, update mobile, change profile picture, and reset account passwords." },
     { id: "PREFS" as SettingsTab, name: "Application Preferences", icon: SettingsIcon, desc: "Customize default currencies, date formats, time display parameters, and default interface themes." }

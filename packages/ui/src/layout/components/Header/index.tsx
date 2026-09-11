@@ -1,6 +1,7 @@
 import React from "react";
 import { Menu } from "lucide-react";
 import { cn } from "../../../design-system/utils";
+import { BhagirathiLogo } from "../../../components/brand";
 
 export interface HeaderProps {
   onMenuToggle: () => void;
@@ -86,6 +87,11 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Profile Dropdown slot */}
         {profileDropdown && <div className="flex items-center">{profileDropdown}</div>}
+
+        {/* Small Bhagirathi Logo for Mobile in Top Header (Right Side) */}
+        <div className="lg:hidden flex items-center shrink-0 ml-1">
+          <BhagirathiLogo size="xs" className="h-7 w-auto max-h-[28px]" />
+        </div>
       </div>
     </header>
   );
