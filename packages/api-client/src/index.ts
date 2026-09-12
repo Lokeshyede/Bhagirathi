@@ -6,20 +6,28 @@ import { ApiErrorResponse } from "@bhagirathi/types";
 const getApiBaseUrl = (): string => {
   const env = (import.meta as any).env;
 
+  const proc = (globalThis as any).process;
   const envUrl =
     env?.VITE_API_BASE_URL ||
-    env?.VITE_API_URL;
+    env?.VITE_API_URL ||
+    proc?.env?.VITE_API_BASE_URL ||
+    proc?.env?.VITE_API_URL;
 
   if (envUrl) {
     return String(envUrl).replace(/\/+$/, "");
   }
 
-  if (typeof window !== "undefined") {
+  if (typeof window !== "undefined" && window.location) {
     const hostname = window.location.hostname;
 
     if (hostname === "localhost" || hostname === "127.0.0.1") {
       return "http://localhost:8000";
     }
+  }
+
+  // Safe fallback for Node/testing environments
+  if (typeof window === "undefined") {
+    return "http://localhost:8000";
   }
 
   throw new Error(
@@ -104,11 +112,43 @@ export const apiClient = axios.create({
   },
 });
 
-// Request interceptor — injects the correct portal-specific Bearer token
+export class OfflineMutationError extends Error {
+  readonly isOffline = true;
+  constructor(message = "Internet connection required for this action.") {
+    super(message);
+    this.name = "OfflineMutationError";
+  }
+}
+
+// Request interceptor — enforces offline mutation safety and injects portal-specific Bearer token
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    // 1. Enforce strict offline mutation blocking (Phase 3 Requirement)
+    // Never allow POST, PUT, PATCH, DELETE business mutations when offline.
+    const method = (config.method || "get").toLowerCase();
+    const isMutation = ["post", "put", "patch", "delete"].includes(method);
+
+    if (isMutation && typeof navigator !== "undefined" && !navigator.onLine) {
+      const offlineError: any = new OfflineMutationError(
+        "Internet connection required for this action."
+      );
+      offlineError.response = {
+        status: 0,
+        statusText: "Offline",
+        data: {
+          detail: "Internet connection required for this action.",
+        },
+        headers: {},
+        config,
+      };
+      return Promise.reject(offlineError);
+    }
+
     const keys = getPortalKeys();
-    const token = localStorage.getItem(keys.token);
+    const token =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem(keys.token)
+        : null;
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -143,9 +183,42 @@ const processQueue = (error: any, token: string | null = null) => {
  * never generic keys, never port-guessed keys.
  */
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Signal healthy backend connectivity when requests succeed
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("bhagirathi-backend-healthy"));
+    }
+    return response;
+  },
   async (error: AxiosError<any>) => {
     const originalRequest = error.config;
+
+    // Detect network / offline failures and notify network status listeners
+    if (
+      error.code === "ERR_NETWORK" ||
+      error.message === "Network Error" ||
+      (typeof navigator !== "undefined" && !navigator.onLine)
+    ) {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("bhagirathi-backend-unreachable"));
+      }
+
+      if (!error.response) {
+        const method = (originalRequest?.method || "").toLowerCase();
+        const isMutation = ["post", "put", "patch", "delete"].includes(method);
+        error.response = {
+          status: 0,
+          statusText: "Network Error",
+          data: {
+            detail: isMutation
+              ? "Internet connection required for this action."
+              : "Unable to connect to server. Please check your internet connection.",
+          },
+          headers: {},
+          config: originalRequest || ({} as any),
+        };
+      }
+    }
 
     if (error.response?.status === 401 && originalRequest) {
       // If this request was already a retry attempt and it failed again with 401,

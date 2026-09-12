@@ -55,9 +55,34 @@ export const localStorageHelper = {
   }
 };
 
+// Offline Network Detection Helper
+export function isNetworkOnline(): boolean {
+  if (typeof navigator !== "undefined" && typeof navigator.onLine === "boolean") {
+    return navigator.onLine;
+  }
+  return true;
+}
+
 // Parse API error messages safely, extract details or validation messages, and guarantee a string return
 export function parseApiError(err: any, fallbackMessage = "Operation failed. Please try again."): string {
   if (!err) return fallbackMessage;
+
+  // 1. Explicit offline mutation or client-detected offline state
+  if (err?.isOffline || err?.name === "OfflineMutationError") {
+    return "Internet connection required for this action.";
+  }
+
+  // 2. Network connectivity failure
+  if (err?.code === "ERR_NETWORK" || err?.message === "Network Error") {
+    const isMutation = ["post", "put", "patch", "delete"].includes(
+      (err?.config?.method || "").toLowerCase()
+    );
+    if (isMutation || !isNetworkOnline()) {
+      return "Internet connection required for this action.";
+    }
+    return "Unable to connect to server. Please check your internet connection.";
+  }
+
   const detail = err?.response?.data?.detail;
   if (!detail) {
     return err.message || fallbackMessage;

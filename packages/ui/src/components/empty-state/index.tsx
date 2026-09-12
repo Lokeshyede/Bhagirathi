@@ -1,5 +1,6 @@
 import React from "react";
-import { Database, Users, Home, CreditCard, MessageSquare, Bell, Search, Building2, Plus, LucideIcon } from "lucide-react";
+import { Database, Users, Home, CreditCard, MessageSquare, Bell, Search, Building2, Plus, LucideIcon, WifiOff } from "lucide-react";
+
 import { cn } from "../../design-system/utils";
 import { Button } from "../buttons";
 
@@ -133,4 +134,21 @@ export const NoBuilding: React.FC<Omit<EmptyStateProps, "title" | "description" 
   />
 );
 
+// 10. OFFLINE STATE (Phase 3 Requirement: "Offline — live data unavailable")
+export const OfflineState: React.FC<
+  Omit<EmptyStateProps, "title" | "description" | "icon"> & {
+    onRetry?: () => void;
+  }
+> = ({ onRetry, actionText = "Retry Connection", ...props }) => (
+  <EmptyState
+    title="Offline — live data unavailable"
+    description="You are currently offline or cannot reach the server. Connect to the internet to load live records."
+    icon={WifiOff}
+    actionText={onRetry ? actionText : undefined}
+    onAction={onRetry}
+    {...props}
+  />
+);
+
 export default EmptyState;
+

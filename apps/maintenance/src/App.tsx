@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@bhagirathi/api-client";
-import { Modal, Button } from "@bhagirathi/ui";
+import { Modal, Button, OfflineIndicator } from "@bhagirathi/ui";
 import { useThemeStore } from "./store/theme";
 import { useAuthStore } from "./store/auth";
 import { AppRoutes } from "./routes";
@@ -34,6 +34,7 @@ export const App: React.FC = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <OfflineIndicator />
       <BrowserRouter>
         <AppRoutes />
       </BrowserRouter>

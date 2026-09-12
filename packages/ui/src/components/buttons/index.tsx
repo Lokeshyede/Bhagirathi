@@ -33,12 +33,15 @@ const buttonVariants = cva(
   }
 );
 
+import { useNetworkStatus } from "../offline/useNetworkStatus";
+
 export interface ButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "color">,
     VariantProps<typeof buttonVariants> {
   isLoading?: boolean;
   leftIcon?: LucideIcon;
   rightIcon?: LucideIcon;
+  requiresOnline?: boolean;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -53,18 +56,26 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       disabled = false,
       leftIcon: LeftIcon,
       rightIcon: RightIcon,
+      requiresOnline = false,
       type = "button",
+      title,
       ...props
     },
     ref
   ) => {
-    const isBtnDisabled = disabled || isLoading;
+    const { isOnline } = useNetworkStatus();
+    const isBlockedByOffline = requiresOnline && !isOnline;
+    const isBtnDisabled = disabled || isLoading || isBlockedByOffline;
+    const computedTitle = isBlockedByOffline
+      ? "Internet connection required for this action."
+      : title;
 
     return (
       <button
         ref={ref}
         type={type}
         disabled={isBtnDisabled}
+        title={computedTitle}
         className={cn(buttonVariants({ variant, size, fullWidth, className }))}
         {...props}
       >

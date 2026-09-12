@@ -5,6 +5,7 @@ import { SearchBar } from "../components/SearchBar";
 import { NotificationFilters } from "../components/NotificationFilters";
 import { NotificationList } from "../components/NotificationList";
 import { Pagination } from "../components/Pagination";
+import { PushNotificationCard } from "../components/PushNotificationCard";
 import { useAuthStore } from "../../../store/auth";
 
 export const NotificationCenterPage: React.FC = () => {
@@ -78,6 +79,9 @@ export const NotificationCenterPage: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Web Push Notification Settings & Permission Toggle */}
+      <PushNotificationCard />
 
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
         <NotificationFilters
