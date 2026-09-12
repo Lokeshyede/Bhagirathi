@@ -41,12 +41,13 @@ export const useMyRentLedger = (tenantId?: string) => {
 
 export const useMyPaymentHistory = () => {
   return useQuery<Payment[]>({
-    queryKey: ["my-payment-history"],
+    queryKey: ["tenant-payments-history"],
     queryFn: async () => {
       // ISSUE-010 fix: backend derives tenant from JWT — never pass tenantId in URL
       const response = await apiClient.get("/api/v1/payments/history");
       return response.data;
-    }
+    },
+    refetchInterval: 5000,
   });
 };
 

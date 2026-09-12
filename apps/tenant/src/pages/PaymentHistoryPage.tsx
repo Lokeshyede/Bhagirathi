@@ -82,16 +82,23 @@ export const PaymentHistoryPage: React.FC = () => {
         </span>
       );
     }
-    if (s === "REJECTED") {
+    if (s === "REJECTED" || s === "FAILED") {
       return (
         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-red-50 text-red-700 dark:bg-red-955/20 dark:text-red-400 border border-red-200 dark:border-red-900/30 animate-pulse">
           <XCircle className="h-3.5 w-3.5" /> Rejected
         </span>
       );
     }
+    if (s === "SUBMITTED" || s === "UNDER_REVIEW" || s === "UNDER_VERIFICATION") {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-blue-50 text-blue-700 dark:bg-blue-955/20 dark:text-blue-400 border border-blue-200 dark:border-blue-900/30">
+          <Clock className="h-3.5 w-3.5 animate-pulse" /> Submitted
+        </span>
+      );
+    }
     return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-blue-50 text-blue-700 dark:bg-blue-955/20 dark:text-blue-400 border border-blue-200 dark:border-blue-900/30">
-        <Clock className="h-3.5 w-3.5" /> Submitted
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 dark:bg-amber-955/20 dark:text-amber-400 border border-amber-250 dark:border-amber-900/30">
+        <Clock className="h-3.5 w-3.5" /> Pending
       </span>
     );
   };

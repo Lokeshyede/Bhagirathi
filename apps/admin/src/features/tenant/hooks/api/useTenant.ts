@@ -100,6 +100,7 @@ export const useTenantMutations = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tenants"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     }
   });
 
@@ -111,6 +112,7 @@ export const useTenantMutations = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["tenants"] });
       queryClient.invalidateQueries({ queryKey: ["tenant", variables.id] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     }
   });
 
@@ -126,6 +128,7 @@ export const useTenantMutations = () => {
       queryClient.invalidateQueries({ queryKey: ["beds"] });
       queryClient.invalidateQueries({ queryKey: ["rooms"] });
       queryClient.invalidateQueries({ queryKey: ["hostel-availability"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     }
   });
 
@@ -141,6 +144,7 @@ export const useTenantMutations = () => {
       queryClient.invalidateQueries({ queryKey: ["beds"] });
       queryClient.invalidateQueries({ queryKey: ["rooms"] });
       queryClient.invalidateQueries({ queryKey: ["hostel-availability"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     }
   });
 
@@ -155,6 +159,7 @@ export const useTenantMutations = () => {
       queryClient.invalidateQueries({ queryKey: ["tenant-history", variables.tenant_id] });
       queryClient.invalidateQueries({ queryKey: ["beds"] });
       queryClient.invalidateQueries({ queryKey: ["rooms"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     }
   });
 
@@ -169,6 +174,7 @@ export const useTenantMutations = () => {
       queryClient.invalidateQueries({ queryKey: ["tenant-history", variables.tenant_id] });
       queryClient.invalidateQueries({ queryKey: ["beds"] });
       queryClient.invalidateQueries({ queryKey: ["rooms"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     }
   });
 
@@ -179,6 +185,7 @@ export const useTenantMutations = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tenants"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     }
   });
 
@@ -195,6 +202,7 @@ export const useTenantMutations = () => {
       queryClient.invalidateQueries({ queryKey: ["beds"] });
       queryClient.invalidateQueries({ queryKey: ["rooms"] });
       queryClient.invalidateQueries({ queryKey: ["hostel-availability"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     }
   });
 
@@ -205,6 +213,7 @@ export const useTenantMutations = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tenants"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     }
   });
 

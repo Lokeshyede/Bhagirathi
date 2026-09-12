@@ -90,7 +90,7 @@ export const PushNotificationCard: React.FC = () => {
       <button
         onClick={subscribe}
         disabled={isLoading}
-        className="flex items-center justify-center gap-2 px-4 py-2 bg-red-650 hover:bg-red-700 text-white text-xs font-semibold rounded-lg shadow-sm transition cursor-pointer disabled:opacity-50 shrink-0"
+        className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg shadow-sm transition cursor-pointer disabled:opacity-50 shrink-0"
       >
         {isLoading ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin" />

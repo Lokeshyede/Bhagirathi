@@ -302,6 +302,10 @@ export const TableActionMenu: React.FC<TableActionMenuProps> = ({ actions, class
   return (
     <div className="relative inline-block text-left" ref={menuRef}>
       <button
+        type="button"
+        aria-label="Row actions"
+        aria-haspopup="true"
+        aria-expanded={isOpen}
         onClick={(e) => {
           e.stopPropagation();
           setIsOpen(!isOpen);

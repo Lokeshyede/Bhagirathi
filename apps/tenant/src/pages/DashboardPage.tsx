@@ -157,15 +157,30 @@ export const DashboardPage: React.FC = () => {
   });
 
   const paymentActivities = (paymentHistory || []).slice(0, 3).map((payment: any) => {
-    const isPaid = payment.status === "PAID" || payment.status === "VERIFIED";
+    const s = String(payment.status || "").toUpperCase();
+    let label = "💳 Payment Submitted";
+    let color = "text-blue-700 bg-blue-50/80 border-blue-100 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900/30";
+
+    if (s === "PAID" || s === "VERIFIED") {
+      label = "✓ Payment Verified";
+      color = "text-green-700 bg-green-50/80 border-green-100 dark:bg-green-950/20 dark:text-green-400 dark:border-green-900/30";
+    } else if (s === "REJECTED" || s === "FAILED") {
+      label = "✗ Payment Rejected";
+      color = "text-red-700 bg-red-50/80 border-red-100 dark:bg-red-955/15 dark:text-red-400 dark:border-red-900/20";
+    } else if (s === "PENDING") {
+      label = "⏳ Payment Pending";
+      color = "text-amber-700 bg-amber-50/80 border-amber-100 dark:bg-amber-955/15 dark:text-amber-400 dark:border-amber-900/20";
+    } else if (s === "SUBMITTED" || s === "UNDER_REVIEW" || s === "UNDER_VERIFICATION") {
+      label = "💳 Payment Submitted";
+      color = "text-blue-700 bg-blue-50/80 border-blue-100 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900/30";
+    }
+
     return {
       type: "payment",
       title: `Combined Statement (UTR: ${payment.utr_number || "N/A"})`,
       date: new Date(payment.created_at || payment.createdAt || new Date()),
-      label: isPaid ? `✓ Payment Verified` : `💳 Payment Submitted`,
-      color: isPaid
-        ? "text-green-700 bg-green-50/80 border-green-100 dark:bg-green-950/20 dark:text-green-400 dark:border-green-900/30"
-        : "text-amber-700 bg-amber-50/80 border-amber-100 dark:bg-amber-955/15 dark:text-amber-400 dark:border-amber-900/20",
+      label,
+      color,
       link: "/payment-history"
     };
   });

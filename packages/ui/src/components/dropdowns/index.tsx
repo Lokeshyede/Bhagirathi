@@ -110,7 +110,12 @@ export const ActionDropdown: React.FC<ActionDropdownProps> = ({
       align="right"
       className={className}
       trigger={
-        <button className="p-1.5 rounded-button text-text-secondary hover:bg-background hover:text-text-primary dark:text-gray-400 dark:hover:bg-gray-800 transition outline-none shrink-0 cursor-pointer">
+        <button
+          type="button"
+          aria-label="Row actions"
+          aria-haspopup="true"
+          className="p-1.5 rounded-button text-text-secondary hover:bg-background hover:text-text-primary dark:text-gray-400 dark:hover:bg-gray-800 transition outline-none shrink-0 cursor-pointer"
+        >
           <TriggerIcon className="h-4 w-4" />
         </button>
       }

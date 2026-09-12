@@ -122,7 +122,7 @@ export const ElectricityReadingModal: React.FC<{ isOpen: boolean; onClose: () =>
         </div>
         
         <form onSubmit={handleSubmit} className="p-4 space-y-4 text-xs font-semibold">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label>Hostel *</label>
               <select required value={selectedHostelId} onChange={e => setSelectedHostelId(e.target.value)} className="h-9 px-2 border border-border rounded bg-transparent">
@@ -160,7 +160,7 @@ export const ElectricityReadingModal: React.FC<{ isOpen: boolean; onClose: () =>
           </div>
 
           {selectedRoomId && (
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-border">
               <div className="flex flex-col gap-1.5">
                 <label>{hasHistoricalReading ? "Previous Reading (Locked)" : "Initial Previous Reading *"}</label>
                 {hasHistoricalReading ? (

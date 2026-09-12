@@ -128,6 +128,7 @@ export const AppRoutes: React.FC = () => {
         <Route path="dashboard" element={<ErrorBoundary name="Dashboard"><DashboardPage /></ErrorBoundary>} />
         <Route path="change-password" element={<ErrorBoundary name="Change Password"><ChangePassword /></ErrorBoundary>} />
         <Route path="complaints" element={<ErrorBoundary name="Complaints"><MaintenanceComplaintsPage /></ErrorBoundary>} />
+        <Route path="tasks" element={<Navigate to="/complaints" replace />} />
         <Route path="bills" element={<ErrorBoundary name="Bill Reading"><BillReadingPage /></ErrorBoundary>} />
         <Route path="notifications" element={<ErrorBoundary name="Notifications"><NotificationCenterPage /></ErrorBoundary>} />
         <Route path="profile" element={<ErrorBoundary name="Profile"><ProfilePage /></ErrorBoundary>} />

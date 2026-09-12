@@ -92,12 +92,12 @@ export const DashboardPage: React.FC = () => {
   const urgentTask = complaints.find(
     (c) =>
       (c.priority === ComplaintPriority.CRITICAL || c.priority === ComplaintPriority.HIGH) &&
-      (c.status === ComplaintStatus.OPEN || c.status === ComplaintStatus.IN_PROGRESS)
+      (c.status === ComplaintStatus.OPEN || c.status === ComplaintStatus.ASSIGNED || c.status === ComplaintStatus.IN_PROGRESS)
   );
 
   // Active Complaints list (up to 3 items)
   const activeAssignments = complaints
-    .filter((c) => c.status === ComplaintStatus.OPEN || c.status === ComplaintStatus.IN_PROGRESS)
+    .filter((c) => c.status === ComplaintStatus.OPEN || c.status === ComplaintStatus.ASSIGNED || c.status === ComplaintStatus.IN_PROGRESS)
     .slice(0, 3);
 
   // Dynamic Recent Activity Timeline Fallback

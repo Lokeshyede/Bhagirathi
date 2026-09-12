@@ -182,7 +182,7 @@ export const ElectricityBillPage: React.FC = () => {
                       Total Room Bill: ₹{Number(bill.bill_amount).toLocaleString("en-IN")}
                     </span>
                     <span className="text-base font-black text-primary tracking-wide block mt-0.5 select-all">
-                      <span className="text-stone-805 dark:text-stone-250">₹{Number(bill?.amount_paid || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      <span className="text-stone-800 dark:text-stone-200">₹{Number(bill?.my_share ?? bill?.outstanding ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </span>
                   </div>
                 </div>

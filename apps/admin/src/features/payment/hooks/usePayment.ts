@@ -95,6 +95,7 @@ export const usePaymentMutations = () => {
       queryClient.invalidateQueries({ queryKey: ["rent-alert-summary"] });
       queryClient.invalidateQueries({ queryKey: ["tenant-current-obligation"] });
       queryClient.invalidateQueries({ queryKey: ["tenant-payment-history"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     }
   });
 
@@ -114,6 +115,7 @@ export const usePaymentMutations = () => {
       queryClient.invalidateQueries({ queryKey: ["rent-collection"] });
       queryClient.invalidateQueries({ queryKey: ["rent-collection-summary"] });
       queryClient.invalidateQueries({ queryKey: ["tenant-current-obligation"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     }
   });
 

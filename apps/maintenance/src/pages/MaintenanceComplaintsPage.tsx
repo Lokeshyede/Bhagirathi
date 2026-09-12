@@ -47,9 +47,17 @@ export const MaintenanceComplaintsPage: React.FC = () => {
   // Filter complaints based on the active tab
   const filteredTasks = (complaints ?? []).filter((c) => {
     if (activeTab === "ACTIVE") {
-      return c.status === ComplaintStatus.OPEN || c.status === ComplaintStatus.IN_PROGRESS;
+      return (
+        c.status === ComplaintStatus.OPEN ||
+        c.status === ComplaintStatus.ASSIGNED ||
+        c.status === ComplaintStatus.IN_PROGRESS
+      );
     } else {
-      return c.status === ComplaintStatus.RESOLVED || c.status === ComplaintStatus.CLOSED || c.status === ComplaintStatus.REJECTED;
+      return (
+        c.status === ComplaintStatus.RESOLVED ||
+        c.status === ComplaintStatus.CLOSED ||
+        c.status === ComplaintStatus.REJECTED
+      );
     }
   }) || [];
 
