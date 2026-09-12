@@ -380,7 +380,7 @@ export const DashboardPage: React.FC = () => {
               {payStatus === "PAID" && (
                 <button
                   id="pay-early-btn"
-                  onClick={() => navigate("/pay-rent")}
+                  onClick={() => navigate("/pay-rent?early=true")}
                   className="flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[11px] uppercase tracking-wider h-9 px-3 rounded-xl cursor-pointer transition-all shadow-lg shadow-black/20 hover:-translate-y-0.5"
                   title="Pay next month's rent in advance"
                 >

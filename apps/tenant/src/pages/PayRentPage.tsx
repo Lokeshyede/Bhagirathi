@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as zod from "zod";
@@ -32,6 +32,105 @@ const MONTH_NAMES = [
   "July", "August", "September", "October", "November", "December"
 ];
 
+interface HostelUpiQrCardProps {
+  upiId?: string;
+  upiName?: string;
+  bankName?: string;
+  qrUrl?: string;
+  upiLink?: string;
+  amount: number;
+  copied: boolean;
+  onCopyUpi: (upi: string) => void;
+  accentColor?: "red" | "emerald";
+}
+
+const HostelUpiQrCard: React.FC<HostelUpiQrCardProps> = ({
+  upiId,
+  upiName,
+  bankName,
+  qrUrl,
+  upiLink,
+  amount,
+  copied,
+  onCopyUpi,
+  accentColor = "red",
+}) => {
+  if (!upiId) {
+    return (
+      <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl p-6 text-center shadow-sm select-none flex flex-col items-center justify-center min-h-[300px]">
+        <AlertCircle className="w-12 h-12 text-amber-500 mb-3 animate-pulse" />
+        <h4 className="font-black text-sm text-stone-850 dark:text-white uppercase tracking-wider mb-2">Payment Details Not Configured</h4>
+        <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed font-semibold">
+          UPI payment details have not been set up by the hostel administrator.
+          Please contact the hostel office to make your payment directly, then submit your UTR reference below.
+        </p>
+      </div>
+    );
+  }
+
+  const isEmerald = accentColor === "emerald";
+  const badgeClass = isEmerald
+    ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200/30 text-emerald-600 dark:text-emerald-400"
+    : "bg-red-50 dark:bg-red-955/20 border-red-200/30 text-red-650";
+  const copyBtnColor = isEmerald ? "text-emerald-600" : "text-red-650";
+  const upiBtnClass = isEmerald
+    ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+    : "bg-red-600 hover:bg-red-700 text-white";
+
+  return (
+    <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl p-5 flex flex-col items-center text-center shadow-sm">
+      <div className={`inline-flex items-center gap-1.5 px-3 py-1 border rounded-full text-[9px] font-black uppercase tracking-wider mb-4 select-none ${badgeClass}`}>
+        <QrCode className="w-3.5 h-3.5 animate-pulse" />
+        <span>Hostel Official UPI QR</span>
+      </div>
+
+      {/* Dynamic QR Display */}
+      <div className="p-3 bg-white border border-slate-200 dark:border-zinc-800 rounded-2xl mb-4 shadow-sm select-none shrink-0">
+        <img src={qrUrl} alt="Hostel UPI QR Code" className="w-40 h-40 object-contain" />
+      </div>
+
+      <div className="w-full space-y-3">
+        <div className="bg-slate-50 dark:bg-zinc-955 border border-slate-150 dark:border-zinc-800 rounded-2xl p-3.5 text-xs text-left space-y-2.5">
+          <div className="flex justify-between items-center">
+            <div>
+              <span className="text-[9px] text-stone-400 dark:text-stone-500 font-black block uppercase tracking-wider">UPI VPA Address</span>
+              <span className="font-mono font-bold text-stone-850 dark:text-white select-all text-[11px] block mt-0.5 truncate max-w-[150px]">{upiId}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => onCopyUpi(upiId)}
+              className={`p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-zinc-800 ${copyBtnColor} transition cursor-pointer flex items-center gap-1 text-[10px] font-black uppercase tracking-wider shrink-0`}
+              title="Copy UPI Address"
+            >
+              {copied ? <Check className="w-3.5 h-3.5 text-green-600 animate-bounce" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copied ? "Copied" : "Copy"}</span>
+            </button>
+          </div>
+
+          <div className="border-t border-slate-200/50 dark:border-zinc-850 pt-2">
+            <span className="text-[9px] text-stone-400 dark:text-stone-500 font-black block uppercase tracking-wider">Account Holder</span>
+            <span className="font-bold text-stone-800 dark:text-gray-200 text-[11px]">{upiName}</span>
+          </div>
+
+          <div className="border-t border-slate-200/50 dark:border-zinc-850 pt-2">
+            <span className="text-[9px] text-stone-400 dark:text-stone-500 font-black block uppercase tracking-wider">Bank Name</span>
+            <span className="font-bold text-stone-800 dark:text-gray-200 text-[11px]">{bankName}</span>
+          </div>
+        </div>
+
+        {/* Open UPI App Link Button */}
+        <a
+          href={upiLink}
+          className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition shadow-xs select-none ${upiBtnClass}`}
+        >
+          <ExternalLink className="w-4 h-4 shrink-0" />
+          <span>Open UPI App (Pay ₹{amount.toLocaleString("en-IN")})</span>
+        </a>
+      </div>
+    </div>
+  );
+};
+
 export const PayRentPage: React.FC = () => {
   const navigate = useNavigate();
   const { data: billData, isLoading, isError, refetch } = useCurrentBill();
@@ -45,8 +144,16 @@ export const PayRentPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [showScreenshotModal, setShowScreenshotModal] = useState(false);
+  const [searchParams] = useSearchParams();
+  const isEarlyParam = searchParams.get("early") === "true";
   // Phase 8: advance payment form
-  const [showAdvanceForm, setShowAdvanceForm] = useState(false);
+  const [showAdvanceForm, setShowAdvanceForm] = useState(isEarlyParam);
+
+  useEffect(() => {
+    if (isEarlyParam) {
+      setShowAdvanceForm(true);
+    }
+  }, [isEarlyParam]);
   const [advFormError, setAdvFormError] = useState<string | null>(null);
   const [advSuccess, setAdvSuccess] = useState(false);
   const [advUtr, setAdvUtr] = useState("");
@@ -159,8 +266,20 @@ export const PayRentPage: React.FC = () => {
   const upiId = paymentDetails.upi_id; // ISSUE-019 fix: remove hardcoded fallback
   const upiName = paymentDetails.account_holder || "";
   const bankName = paymentDetails.bank_name || "";
-  const qrUrl = paymentDetails.qr_code_url || "";
-  const upiLink = paymentDetails.upi_link || "";
+
+  // Normal rent payment details
+  const normalAmount = billData.outstanding_amount || 0;
+  const normalUpiLink = paymentDetails.upi_link || (upiId ? `upi://pay?pa=${upiId}&pn=${encodeURIComponent(upiName)}&am=${normalAmount}&cu=INR` : "");
+  const normalQrUrl = paymentDetails.qr_code_url || (upiId && normalUpiLink ? `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(normalUpiLink)}` : "");
+
+  // Early / Advance rent payment details
+  const baseEarlyAmount = advCtx?.next_outstanding ?? billData?.next_rent ?? 0;
+  const parsedAdvAmount = parseFloat(advAmount);
+  const earlyAmount = !isNaN(parsedAdvAmount) && parsedAdvAmount > 0 ? parsedAdvAmount : baseEarlyAmount;
+  const earlyUpiLink = upiId ? `upi://pay?pa=${upiId}&pn=${encodeURIComponent(upiName)}&am=${earlyAmount}&cu=INR` : "";
+  const earlyQrUrl = paymentDetails.qr_code_url && !paymentDetails.qr_code_url.includes("api.qrserver.com")
+    ? paymentDetails.qr_code_url
+    : (upiId && earlyUpiLink ? `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(earlyUpiLink)}` : "");
 
   // When no bill has been generated yet, show an informational state rather than
   // a ₹0 amount or a fabricated due date.
@@ -394,67 +513,17 @@ export const PayRentPage: React.FC = () => {
 
           {/* Left Column: Hostel UPI & QR Card (5 cols) */}
           <div className="md:col-span-5 space-y-4">
-            {!upiId ? (
-              <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl p-6 text-center shadow-sm select-none flex flex-col items-center justify-center min-h-[300px]">
-                <AlertCircle className="w-12 h-12 text-amber-500 mb-3 animate-pulse" />
-                <h4 className="font-black text-sm text-stone-850 dark:text-white uppercase tracking-wider mb-2">Payment Details Not Configured</h4>
-                <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed font-semibold">
-                  UPI payment details have not been set up by the hostel administrator.
-                  Please contact the hostel office to make your payment directly, then submit your UTR reference below.
-                </p>
-              </div>
-            ) : (
-              <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl p-5 flex flex-col items-center text-center shadow-sm">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-50 dark:bg-red-955/20 border border-red-200/30 text-red-650 rounded-full text-[9px] font-black uppercase tracking-wider mb-4 select-none">
-                  <QrCode className="w-3.5 h-3.5 animate-pulse" />
-                  <span>Hostel Official UPI QR</span>
-                </div>
-
-                {/* Dynamic QR Display */}
-                <div className="p-3 bg-white border border-slate-200 dark:border-zinc-800 rounded-2xl mb-4 shadow-sm select-none shrink-0">
-                  <img src={qrUrl} alt="Hostel UPI QR Code" className="w-40 h-40 object-contain" />
-                </div>
-
-                <div className="w-full space-y-3">
-                  <div className="bg-slate-50 dark:bg-zinc-955 border border-slate-150 dark:border-zinc-800 rounded-2xl p-3.5 text-xs text-left space-y-2.5">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <span className="text-[9px] text-stone-400 dark:text-stone-500 font-black block uppercase tracking-wider">UPI VPA Address</span>
-                        <span className="font-mono font-bold text-stone-850 dark:text-white select-all text-[11px] block mt-0.5 truncate max-w-[150px]">{upiId}</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleCopyUpi(upiId)}
-                        className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-zinc-800 text-red-650 transition cursor-pointer flex items-center gap-1 text-[10px] font-black uppercase tracking-wider shrink-0"
-                        title="Copy UPI Address"
-                      >
-                        {copied ? <Check className="w-3.5 h-3.5 text-green-600 animate-bounce" /> : <Copy className="w-3.5 h-3.5" />}
-                        <span>{copied ? "Copied" : "Copy"}</span>
-                      </button>
-                    </div>
-
-                    <div className="border-t border-slate-200/50 dark:border-zinc-850 pt-2">
-                      <span className="text-[9px] text-stone-400 dark:text-stone-500 font-black block uppercase tracking-wider">Account Holder</span>
-                      <span className="font-bold text-stone-800 dark:text-gray-200 text-[11px]">{upiName}</span>
-                    </div>
-
-                    <div className="border-t border-slate-200/50 dark:border-zinc-850 pt-2">
-                      <span className="text-[9px] text-stone-400 dark:text-stone-500 font-black block uppercase tracking-wider">Bank Name</span>
-                      <span className="font-bold text-stone-800 dark:text-gray-200 text-[11px]">{bankName}</span>
-                    </div>
-                  </div>
-
-                  {/* Open UPI App Link Button */}
-                  <a
-                    href={upiLink}
-                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-black uppercase tracking-wider transition shadow-xs select-none"
-                  >
-                    <ExternalLink className="w-4 h-4 shrink-0" />
-                    <span>Open UPI App (Pay ₹{billData.outstanding_amount})</span>
-                  </a>
-                </div>
-              </div>
-            )}
+            <HostelUpiQrCard
+              upiId={upiId}
+              upiName={upiName}
+              bankName={bankName}
+              qrUrl={normalQrUrl}
+              upiLink={normalUpiLink}
+              amount={normalAmount}
+              copied={copied}
+              onCopyUpi={handleCopyUpi}
+              accentColor="red"
+            />
           </div>
 
           {/* Right Column: Payment Submission Form (7 cols) */}
@@ -720,95 +789,127 @@ export const PayRentPage: React.FC = () => {
                       </div>
                     )}
 
-                    <div>
-                      <label className="block text-[10px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-wider mb-1.5 select-none">
-                        UTR / Transaction Reference <span className="text-red-600">*</span>
-                      </label>
-                      <input
-                        id="adv-utr"
-                        value={advUtr}
-                        onChange={e => setAdvUtr(e.target.value)}
-                        placeholder="Enter 12–22 digit UTR number"
-                        className="w-full h-10 px-3 border border-slate-200 dark:border-zinc-800 rounded-xl bg-slate-50 dark:bg-zinc-950 text-xs font-semibold text-stone-850 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-emerald-600 transition-all font-mono uppercase"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-wider mb-1.5 select-none">
-                        Amount (₹) <span className="text-stone-400 font-normal text-[9px]">— Leave blank to pay full ₹{advCtx.next_outstanding?.toLocaleString("en-IN")}</span>
-                      </label>
-                      <input
-                        id="adv-amount"
-                        type="number"
-                        value={advAmount}
-                        onChange={e => setAdvAmount(e.target.value)}
-                        placeholder={`Max ₹${advCtx.next_outstanding?.toLocaleString("en-IN")}`}
-                        min="1"
-                        max={advCtx.next_outstanding}
-                        className="w-full h-10 px-3 border border-slate-200 dark:border-zinc-800 rounded-xl bg-slate-50 dark:bg-zinc-950 text-xs font-semibold text-stone-850 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-emerald-600 transition-all"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-wider mb-2 select-none">
-                        Screenshot <span className="text-stone-400 font-normal text-[9px]">(Optional)</span>
-                      </label>
-                      <div className="border-2 border-dashed border-slate-200 dark:border-zinc-850 rounded-2xl p-3 text-center hover:border-emerald-600 transition cursor-pointer bg-slate-50 dark:bg-zinc-950/20">
-                        <input
-                          type="file"
-                          id="adv-screenshot-file"
-                          accept="image/png, image/jpeg, image/jpg, image/webp"
-                          onChange={e => { if (e.target.files?.[0]) setAdvFile(e.target.files[0]); }}
-                          className="hidden"
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pt-1">
+                      {/* Left Column: Hostel UPI & QR Card (5 cols) */}
+                      <div className="md:col-span-5 space-y-4">
+                        <HostelUpiQrCard
+                          upiId={upiId}
+                          upiName={upiName}
+                          bankName={bankName}
+                          qrUrl={earlyQrUrl}
+                          upiLink={earlyUpiLink}
+                          amount={earlyAmount}
+                          copied={copied}
+                          onCopyUpi={handleCopyUpi}
+                          accentColor="emerald"
                         />
-                        <label htmlFor="adv-screenshot-file" className="cursor-pointer text-xs font-bold text-stone-500 dark:text-stone-400 flex items-center justify-center gap-2">
-                          <Upload className="w-4 h-4" />
-                          {advFile ? advFile.name : "Click to upload screenshot"}
-                        </label>
+                      </div>
+
+                      {/* Right Column: Advance Payment Submission Form (7 cols) */}
+                      <div className="md:col-span-7">
+                        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl p-5 shadow-sm space-y-4">
+                          <div className="select-none">
+                            <h3 className="text-xs font-black text-stone-850 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                              <Sparkles className="w-4 h-4 text-emerald-600" />
+                              <span>Submit Advance Payment Details</span>
+                            </h3>
+                            <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1 leading-normal font-semibold">
+                              Enter your transaction reference code (UTR) and attach payment proof screenshot.
+                            </p>
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-wider mb-1.5 select-none">
+                              UTR / Transaction Reference <span className="text-red-600">*</span>
+                            </label>
+                            <input
+                              id="adv-utr"
+                              value={advUtr}
+                              onChange={e => setAdvUtr(e.target.value)}
+                              placeholder="Enter 12–22 digit UTR number"
+                              className="w-full h-10 px-3 border border-slate-200 dark:border-zinc-800 rounded-xl bg-slate-50 dark:bg-zinc-950 text-xs font-semibold text-stone-850 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-emerald-600 transition-all font-mono uppercase"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-wider mb-1.5 select-none">
+                              Amount (₹) <span className="text-stone-400 font-normal text-[9px]">— Leave blank to pay full ₹{advCtx.next_outstanding?.toLocaleString("en-IN")}</span>
+                            </label>
+                            <input
+                              id="adv-amount"
+                              type="number"
+                              value={advAmount}
+                              onChange={e => setAdvAmount(e.target.value)}
+                              placeholder={`Max ₹${advCtx.next_outstanding?.toLocaleString("en-IN")}`}
+                              min="1"
+                              max={advCtx.next_outstanding}
+                              className="w-full h-10 px-3 border border-slate-200 dark:border-zinc-800 rounded-xl bg-slate-50 dark:bg-zinc-950 text-xs font-semibold text-stone-850 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-emerald-600 transition-all"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-wider mb-2 select-none">
+                              Payment Screenshot Proof <span className="text-stone-400 font-normal text-[9px]">(Optional, Max 10MB)</span>
+                            </label>
+                            <div className="border-2 border-dashed border-slate-200 dark:border-zinc-850 rounded-2xl p-3 text-center hover:border-emerald-600 transition cursor-pointer bg-slate-50 dark:bg-zinc-950/20">
+                              <input
+                                type="file"
+                                id="adv-screenshot-file"
+                                accept="image/png, image/jpeg, image/jpg, image/webp"
+                                onChange={e => { if (e.target.files?.[0]) setAdvFile(e.target.files[0]); }}
+                                className="hidden"
+                              />
+                              <label htmlFor="adv-screenshot-file" className="cursor-pointer text-xs font-bold text-stone-500 dark:text-stone-400 flex items-center justify-center gap-2">
+                                <Upload className="w-4 h-4" />
+                                {advFile ? advFile.name : "Click to upload screenshot"}
+                              </label>
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-wider mb-1.5 select-none">
+                              Remarks <span className="text-stone-400 font-normal text-[9px]">(Optional)</span>
+                            </label>
+                            <input
+                              id="adv-remarks"
+                              value={advRemarks}
+                              onChange={e => setAdvRemarks(e.target.value)}
+                              placeholder={`Advance rent for ${advCtx.next_period_label}`}
+                              className="w-full h-10 px-3 border border-slate-200 dark:border-zinc-800 rounded-xl bg-slate-50 dark:bg-zinc-950 text-xs font-semibold text-stone-850 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-emerald-600 transition-all"
+                            />
+                          </div>
+
+                          <Button
+                            id="adv-submit-btn"
+                            disabled={payAdvanceMutation.isPending || !advUtr.trim()}
+                            onClick={async () => {
+                              try {
+                                setAdvFormError(null);
+                                const fd = new FormData();
+                                fd.append("utr", advUtr.trim());
+                                if (advAmount) fd.append("amount", advAmount);
+                                if (advRemarks) fd.append("remarks", advRemarks);
+                                if (advFile) fd.append("screenshot", advFile);
+                                await payAdvanceMutation.mutateAsync(fd);
+                                setAdvSuccess(true);
+                                setAdvUtr(""); setAdvAmount(""); setAdvRemarks(""); setAdvFile(null);
+                                refetch();
+                              } catch (err: any) {
+                                const msg = err.response?.data?.detail || "Advance payment submission failed.";
+                                setAdvFormError(Array.isArray(msg) ? msg[0]?.msg : msg);
+                              }
+                            }}
+                            className="w-full h-10 text-xs font-black uppercase tracking-wider text-white flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 select-none cursor-pointer"
+                          >
+                            {payAdvanceMutation.isPending ? (
+                              <><Clock className="w-4 h-4 animate-spin" /> Submitting...</>
+                            ) : (
+                              <><ShieldCheck className="w-4.5 h-4.5" /> Submit Advance Payment</>  
+                            )}
+                          </Button>
+                        </div>
                       </div>
                     </div>
-
-                    <div>
-                      <label className="block text-[10px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-wider mb-1.5 select-none">
-                        Remarks <span className="text-stone-400 font-normal text-[9px]">(Optional)</span>
-                      </label>
-                      <input
-                        id="adv-remarks"
-                        value={advRemarks}
-                        onChange={e => setAdvRemarks(e.target.value)}
-                        placeholder={`Advance rent for ${advCtx.next_period_label}`}
-                        className="w-full h-10 px-3 border border-slate-200 dark:border-zinc-800 rounded-xl bg-slate-50 dark:bg-zinc-950 text-xs font-semibold text-stone-850 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-emerald-600 transition-all"
-                      />
-                    </div>
-
-                    <Button
-                      id="adv-submit-btn"
-                      disabled={payAdvanceMutation.isPending || !advUtr.trim()}
-                      onClick={async () => {
-                        try {
-                          setAdvFormError(null);
-                          const fd = new FormData();
-                          fd.append("utr", advUtr.trim());
-                          if (advAmount) fd.append("amount", advAmount);
-                          if (advRemarks) fd.append("remarks", advRemarks);
-                          if (advFile) fd.append("screenshot", advFile);
-                          await payAdvanceMutation.mutateAsync(fd);
-                          setAdvSuccess(true);
-                          setAdvUtr(""); setAdvAmount(""); setAdvRemarks(""); setAdvFile(null);
-                          refetch();
-                        } catch (err: any) {
-                          const msg = err.response?.data?.detail || "Advance payment submission failed.";
-                          setAdvFormError(Array.isArray(msg) ? msg[0]?.msg : msg);
-                        }
-                      }}
-                      className="w-full h-10 text-xs font-black uppercase tracking-wider text-white flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 select-none"
-                    >
-                      {payAdvanceMutation.isPending ? (
-                        <><Clock className="w-4 h-4 animate-spin" /> Submitting...</>
-                      ) : (
-                        <><ShieldCheck className="w-4.5 h-4.5" /> Submit Advance Payment</>  
-                      )}
-                    </Button>
                   </motion.div>
                 )}
               </div>
