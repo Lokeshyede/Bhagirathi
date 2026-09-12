@@ -184,11 +184,26 @@ export const DashboardLayout: React.FC = () => {
         isMobileOpen={isMobileDrawerOpen}
         onMobileClose={toggleMobileDrawer}
         LinkComponent={Link}
+        themeToggle={
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="p-2 rounded-button text-text-secondary hover:bg-background dark:text-gray-400 dark:hover:bg-gray-800 transition outline-none cursor-pointer"
+            aria-label="Toggle theme"
+          >
+            {isDarkMode ? (
+              <Sun className="h-4.5 w-4.5 text-amber-400" />
+            ) : (
+              <Moon className="h-4.5 w-4.5" />
+            )}
+          </button>
+        }
       />
 
       <PageContainer>
         <Header
           onMenuToggle={toggleMobileDrawer}
+          isMenuOpen={isMobileDrawerOpen}
           breadcrumb={
             <Breadcrumb
               items={[{ label: "Bhagirathi" }, { label: currentPage }]}
@@ -197,7 +212,6 @@ export const DashboardLayout: React.FC = () => {
               }}
             />
           }
-          mobileTitle={currentPage}
           searchTrigger={<SearchTrigger onClick={openSearch} />}
           themeToggle={
             <button

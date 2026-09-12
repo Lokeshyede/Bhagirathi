@@ -113,20 +113,14 @@ export const DashboardLayout: React.FC = () => {
         
         {/* Sticky Top Header */}
         <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-slate-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md px-4 sm:px-6 select-none shadow-sm">
-          {/* Brand/Hamburger Menu trigger for mobile */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl text-stone-500 dark:text-stone-450 hover:bg-slate-100 dark:hover:bg-zinc-800 cursor-pointer outline-none border border-slate-200/20"
-              aria-label="Menu"
-            >
-              {isMobileMenuOpen ? <X className="h-[18px] w-[18px]" /> : <Menu className="h-[18px] w-[18px]" />}
-            </button>
-            
-            {/* Mobile staff officer greeting */}
-            <span className="md:hidden text-xs font-bold text-stone-900 dark:text-white uppercase tracking-wider truncate max-w-[120px]">
-              {user?.full_name?.split(" ")[0] || "Staff"}
-            </span>
+          {/* Left Side:
+              Mobile: Bhagirathi multicolor circular logo (clean & compact, approx 32px, NO text beside it)
+              Desktop: Header label */}
+          <div className="flex items-center gap-3 min-w-0">
+            {/* Mobile Circular Logo */}
+            <div className="md:hidden flex items-center shrink-0">
+              <BhagirathiLogo size="sm" className="h-8 w-8 shrink-0" />
+            </div>
             
             {/* Desktop header label */}
             <span className="hidden md:inline text-[11px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-widest select-none truncate max-w-sm">
@@ -134,6 +128,9 @@ export const DashboardLayout: React.FC = () => {
             </span>
           </div>
 
+          {/* Right Side:
+              Mobile: [Bell] [☰ Hamburger]
+              Desktop: Desktop Logo, Notification Bell */}
           <div className="flex items-center gap-2.5">
             {/* Desktop header logo */}
             <div className="hidden md:flex items-center mr-1">
@@ -145,29 +142,16 @@ export const DashboardLayout: React.FC = () => {
               <NotificationBell />
             </div>
 
-            {/* Mobile-only Theme Toggle & Logout */}
-            <div className="flex md:hidden items-center gap-1.5">
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer outline-none"
-                aria-label="Toggle theme"
-              >
-                {isDarkMode ? <Sun className="h-4 w-4 text-amber-500" /> : <Moon className="h-4 w-4 text-stone-600" />}
-              </button>
-              <button
-                onClick={handleLogout}
-                className="p-2 rounded-xl text-stone-500 hover:bg-red-50 hover:text-red-600 dark:text-stone-400 dark:hover:bg-red-950/20 dark:hover:text-red-400 transition-colors cursor-pointer outline-none"
-              >
-                <LogOut className="h-[18px] w-[18px]" />
-              </button>
-            </div>
-
-            {/* Mobile Small Bhagirathi Logo on the RIGHT SIDE (approx 28–36px) */}
-            <div className="md:hidden flex items-center shrink-0 ml-1">
-              <BhagirathiLogo size="xs" className="h-7 w-7" />
-            </div>
+            {/* Mobile Hamburger / Sidebar button (Far Right) */}
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-xl text-stone-600 dark:text-stone-300 hover:bg-slate-100 dark:hover:bg-zinc-800 cursor-pointer outline-none transition-colors shrink-0"
+              aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+            >
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
           </div>
-
         </header>
 
         {/* Mobile menu overlay/panel */}
@@ -187,18 +171,26 @@ export const DashboardLayout: React.FC = () => {
                 animate={{ x: 0 }}
                 exit={{ x: "-100%" }}
                 transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                className="fixed inset-y-0 left-0 top-16 w-4/5 max-w-sm z-30 flex md:hidden bg-white dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 flex-col p-5 space-y-4 shadow-xl select-none"
+                className="fixed inset-y-0 left-0 top-16 w-4/5 max-w-sm z-30 flex md:hidden bg-white dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 flex-col p-5 shadow-xl select-none"
               >
-                <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-zinc-800">
+                {/* Brand header */}
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800 shrink-0">
                   <div className="flex items-center gap-2">
                     <BhagirathiLogo size="xs" className="h-6 w-6 ring-1 ring-slate-200 dark:ring-zinc-700 shrink-0" />
                     <span className="text-xs font-black uppercase text-stone-800 dark:text-white tracking-wider">Bhagirathi Staff</span>
                   </div>
-                  <button onClick={() => setIsMobileMenuOpen(false)} className="p-1 rounded text-stone-400 hover:text-stone-600">
+                  <button
+                    type="button"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="p-1 rounded text-stone-400 hover:text-stone-600 cursor-pointer"
+                    aria-label="Close navigation menu"
+                  >
                     <X className="h-4 w-4" />
                   </button>
                 </div>
-                <nav className="flex-1 overflow-y-auto space-y-1 pr-1">
+
+                {/* Nav Items */}
+                <nav className="flex-1 overflow-y-auto space-y-1 pr-1 py-3">
                   {navItems.map((item) => {
                     const Icon = item.icon;
                     const isActive = pathname.startsWith(item.path);
@@ -219,6 +211,38 @@ export const DashboardLayout: React.FC = () => {
                     );
                   })}
                 </nav>
+
+                {/* Utility Section: Dark Mode + Logout (Moved into sidebar) */}
+                <div className="pt-3 border-t border-slate-200 dark:border-zinc-800 space-y-2 mt-auto shrink-0">
+                  <div className="flex items-center justify-between px-2 py-1">
+                    <span className="text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider">
+                      {isDarkMode ? "Dark Mode" : "Light Mode"}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={toggleTheme}
+                      className="p-1.5 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer outline-none"
+                      aria-label="Toggle theme"
+                    >
+                      {isDarkMode ? (
+                        <Sun className="h-4 w-4 text-amber-500" />
+                      ) : (
+                        <Moon className="h-4 w-4 text-stone-400" />
+                      )}
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-stone-600 hover:bg-red-50 hover:text-red-600 dark:text-stone-400 dark:hover:bg-red-950/20 dark:hover:text-red-400 transition-all duration-200 cursor-pointer outline-none"
+                  >
+                    <LogOut className="h-4 w-4 text-stone-400 group-hover:text-red-500" />
+                    <span>Logout</span>
+                  </button>
+                </div>
               </motion.div>
             </>
           )}

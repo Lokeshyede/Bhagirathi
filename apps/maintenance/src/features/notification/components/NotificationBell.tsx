@@ -8,9 +8,10 @@ export const NotificationBell: React.FC = () => {
 
   return (
     <button
+      type="button"
       onClick={toggleDrawer}
       className="bell-trigger-btn relative p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition cursor-pointer"
-      aria-label="Toggle Notifications"
+      aria-label="Notifications"
     >
       <Bell className="h-5 w-5" />
       <UnreadCounter />

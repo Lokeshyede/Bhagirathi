@@ -28,6 +28,7 @@ export interface SidebarProps {
   LinkComponent?: any;
   onItemClick?: () => void; // call when navigation happens (useful to auto-close mobile drawer)
   avatarGradient?: string;
+  themeToggle?: React.ReactNode;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -46,6 +47,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   LinkComponent,
   onItemClick,
   avatarGradient = "from-primary to-red-700",
+  themeToggle,
 }) => {
   const sidebarWidth = isCollapsed ? "w-[68px]" : "w-64";
 
@@ -93,16 +95,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Close button for Mobile, Collapse toggle button for Desktop */}
           {mobile ? (
             <button
+              type="button"
               onClick={onMobileClose}
               className="p-1.5 rounded-button text-text-secondary hover:bg-background dark:hover:bg-gray-900 transition cursor-pointer"
+              aria-label="Close navigation menu"
             >
               <X className="h-4 w-4" />
             </button>
           ) : (
             <button
+              type="button"
               onClick={onToggleCollapse}
               className="hidden lg:flex p-1.5 rounded-button text-text-secondary hover:bg-background dark:hover:bg-gray-800 transition cursor-pointer shrink-0"
               title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+              aria-label={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
             >
               {collapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
             </button>
@@ -123,8 +129,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
           />
         </div>
 
-        {/* User profile footer */}
-        <div className="flex-shrink-0 p-3 border-t border-border dark:border-gray-900">
+        {/* User profile & utility footer */}
+        <div className="flex-shrink-0 p-3 border-t border-border dark:border-gray-900 space-y-1">
+          {/* Theme Toggle row (moved into sidebar) */}
+          {themeToggle && !collapsed && (
+            <div className="flex items-center justify-between px-3.5 py-2 mb-1">
+              <span className="text-xs font-bold text-text-secondary dark:text-gray-400">
+                Dark Mode
+              </span>
+              <div className="flex items-center">
+                {themeToggle}
+              </div>
+            </div>
+          )}
+
           <div className={cn("flex items-center gap-3 px-2 py-2 mb-1", collapsed ? "justify-center" : "")}>
             <div className={cn(
               "h-8 w-8 rounded-full bg-gradient-to-br text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm uppercase",
@@ -146,6 +164,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {onLogout && !collapsed && (
             <button
+              type="button"
               onClick={onLogout}
               className="flex w-full items-center gap-3 px-3.5 py-2.5 rounded-button text-xs font-bold uppercase tracking-wider text-text-secondary hover:bg-danger-light/20 hover:text-danger dark:text-gray-400 dark:hover:bg-red-950/20 dark:hover:text-red-400 transition duration-150 cursor-pointer outline-none"
             >
