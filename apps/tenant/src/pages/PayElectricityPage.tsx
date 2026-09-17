@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@bhagirathi/api-client";
 import { Button } from "@bhagirathi/ui";
-import { ArrowLeft, Upload, AlertTriangle, Zap, Copy, Check, Send } from "lucide-react";
+import { ArrowLeft, Upload, AlertTriangle, Zap, Copy, Check, Send, ExternalLink, Clock, CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 export const PayElectricityPage: React.FC = () => {
@@ -19,28 +19,33 @@ export const PayElectricityPage: React.FC = () => {
   const [validationError, setValidationError] = useState<string | null>(null);
   const [paymentAmount, setPaymentAmount] = useState<string>("");
 
-  const { data: bill, isLoading, isError } = useQuery<any>({
+  const { data: bill, isLoading: isLoadingBill, isError } = useQuery<any>({
     queryKey: ["my-electricity-bills"],
     queryFn: async () => {
-      // Find the specific bill from the list since we enriched it there
       const res = await apiClient.get(`/api/v1/my/electricity-bills`);
       const allBills = res.data;
-      const found = allBills.find((b: any) => b.id === id);
-      if (found && !paymentAmount) {
-        setPaymentAmount((found.outstanding ?? found.my_share).toString());
-      }
-      return found;
+      return allBills.find((b: any) => b.id === id);
     },
     enabled: !!id
   });
 
-  const { data: currentBill } = useQuery<any>({
+  const { data: currentBill, isLoading: isLoadingCurrentBill } = useQuery<any>({
     queryKey: ["tenant-current-bill"],
     queryFn: async () => {
       const response = await apiClient.get("/api/v1/payments/current");
       return response.data;
     }
   });
+
+  // Synchronize default payment amount when bill is retrieved
+  useEffect(() => {
+    if (bill && !paymentAmount) {
+      const initialAmt = bill.outstanding ?? bill.my_share ?? bill.bill_amount ?? 0;
+      if (initialAmt > 0) {
+        setPaymentAmount(initialAmt.toString());
+      }
+    }
+  }, [bill, paymentAmount]);
 
   const handleCopy = (text: string, fieldName: string) => {
     navigator.clipboard.writeText(text);
@@ -89,10 +94,10 @@ export const PayElectricityPage: React.FC = () => {
     const maxPayable = bill?.outstanding ?? bill?.my_share ?? bill?.bill_amount ?? 0;
     
     if (isNaN(amountValue) || amountValue <= 0) {
-      setValidationError("Please enter a valid payment amount.");
+      setValidationError("Please enter a valid payment amount (minimum ₹1).");
       return;
     }
-    if (amountValue > maxPayable) {
+    if (amountValue > maxPayable + 0.01) {
       setValidationError(`Payment amount cannot exceed outstanding dues (₹${maxPayable}).`);
       return;
     }
@@ -129,7 +134,7 @@ export const PayElectricityPage: React.FC = () => {
     return date.toLocaleString("en-US", { month: "long" });
   };
 
-  if (isLoading) {
+  if (isLoadingBill || isLoadingCurrentBill) {
     return (
       <div className="space-y-6 pb-12 animate-pulse select-none max-w-2xl mx-auto">
         <div className="h-10 w-28 bg-slate-200 dark:bg-zinc-800 rounded-lg" />
@@ -158,10 +163,14 @@ export const PayElectricityPage: React.FC = () => {
 
   const paymentDetails = currentBill?.hostel_payment_details || {};
   const upiId = paymentDetails.upi_id; 
-  const merchantName = paymentDetails.account_holder || "";
+  const merchantName = paymentDetails.account_holder || paymentDetails.hostel_name || "Bhagirathi Hostel";
   const maxPayable = bill?.outstanding ?? bill?.my_share ?? bill?.bill_amount ?? 0;
-  const currentPayable = parseFloat(paymentAmount) || maxPayable;
-  const upiUrl = upiId ? `upi://pay?pa=${upiId}&pn=${encodeURIComponent(merchantName)}&am=${currentPayable}&tr=ELEC-${bill?.id}&cu=INR` : "";
+  const parsedAmt = parseFloat(paymentAmount);
+  const currentPayable = !isNaN(parsedAmt) && parsedAmt > 0 ? parsedAmt : maxPayable;
+  const upiUrl = upiId ? `upi://pay?pa=${upiId}&pn=${encodeURIComponent(merchantName)}&am=${currentPayable}&cu=INR` : "";
+
+  const isUnderReview = bill?.payment_status === "UNDER_REVIEW";
+  const isFullyPaid = maxPayable <= 0;
 
   return (
     <motion.div
@@ -231,149 +240,189 @@ export const PayElectricityPage: React.FC = () => {
             <AlertTriangle className="w-10 h-10 text-amber-500 mb-2 animate-pulse" />
             <h4 className="font-black text-xs text-stone-850 dark:text-white uppercase tracking-wider mb-1">UPI Payment Unavailable</h4>
             <p className="text-[10px] text-stone-500 dark:text-stone-400 font-semibold leading-relaxed">
-              UPI payment is currently unavailable. Please contact the hostel administrator.
+              UPI payment details have not been set up by the hostel administrator.
+              Please contact the hostel office to complete your electricity bill payment.
             </p>
           </div>
         ) : (
-          <div className="flex flex-col sm:flex-row items-center gap-6">
-            {/* QR Code */}
-            <div className="p-3 bg-white border border-slate-250 dark:border-zinc-800 rounded-2xl shrink-0 select-none shadow-sm">
-              <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiUrl)}`}
-                alt="Merchant UPI QR Code"
-                className="h-36 w-36 object-contain"
-              />
-            </div>
-
-            <div className="flex-1 space-y-3.5 w-full text-xs">
-              <div className="space-y-0.5">
-                <span className="text-[9px] text-stone-400 dark:text-stone-500 uppercase font-black tracking-wider block select-none">Merchant Name</span>
-                <span className="font-bold text-xs text-stone-850 dark:text-white">{merchantName}</span>
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row items-center gap-6">
+              {/* Dynamic QR Code */}
+              <div className="p-3 bg-white border border-slate-250 dark:border-zinc-800 rounded-2xl shrink-0 select-none shadow-sm">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiUrl)}`}
+                  alt="Merchant UPI QR Code"
+                  className="h-36 w-36 object-contain"
+                />
               </div>
 
-              <div className="space-y-1">
-                <span className="text-[9px] text-stone-400 dark:text-stone-500 uppercase font-black tracking-wider block select-none">UPI ID</span>
-                <div className="flex justify-between items-center p-2.5 bg-slate-50 dark:bg-zinc-950 border border-slate-150 dark:border-zinc-800 rounded-xl font-bold">
-                  <span className="select-all text-stone-800 dark:text-stone-300 font-mono text-[11px] truncate max-w-[200px]">{upiId}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleCopy(upiId, "upi")}
-                    className="text-red-650 hover:text-red-700 bg-transparent border-none cursor-pointer outline-none ml-2 shrink-0"
-                  >
-                    {copiedField === "upi" ? <Check className="h-4 w-4 text-green-600 animate-bounce" /> : <Copy className="h-4 w-4" />}
-                  </button>
+              <div className="flex-1 space-y-3.5 w-full text-xs">
+                <div className="space-y-0.5">
+                  <span className="text-[9px] text-stone-400 dark:text-stone-500 uppercase font-black tracking-wider block select-none">Merchant Name</span>
+                  <span className="font-bold text-xs text-stone-850 dark:text-white">{merchantName}</span>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[9px] text-stone-400 dark:text-stone-500 uppercase font-black tracking-wider block select-none">UPI ID</span>
+                  <div className="flex justify-between items-center p-2.5 bg-slate-50 dark:bg-zinc-950 border border-slate-150 dark:border-zinc-800 rounded-xl font-bold">
+                    <span className="select-all text-stone-800 dark:text-stone-300 font-mono text-[11px] truncate max-w-[200px]">{upiId}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(upiId, "upi")}
+                      className="text-red-650 hover:text-red-700 bg-transparent border-none cursor-pointer outline-none ml-2 shrink-0"
+                    >
+                      {copiedField === "upi" ? <Check className="h-4 w-4 text-green-600 animate-bounce" /> : <Copy className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[9px] text-stone-400 dark:text-stone-500 uppercase font-black tracking-wider block select-none">Paying Amount</span>
+                  <div className="flex justify-between items-center p-2.5 bg-slate-50 dark:bg-zinc-955 border border-slate-150 dark:border-zinc-800 rounded-xl font-bold">
+                    <span className="text-stone-800 dark:text-stone-300 font-mono font-bold">₹{Number(currentPayable).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(currentPayable.toString(), "amount")}
+                      className="text-red-650 hover:text-red-700 bg-transparent border-none cursor-pointer outline-none ml-2 shrink-0"
+                    >
+                      {copiedField === "amount" ? <Check className="h-4 w-4 text-green-600 animate-bounce" /> : <Copy className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
               </div>
-
-              <div className="space-y-1">
-                <span className="text-[9px] text-stone-400 dark:text-stone-500 uppercase font-black tracking-wider block select-none">Paying Amount</span>
-                <div className="flex justify-between items-center p-2.5 bg-slate-50 dark:bg-zinc-955 border border-slate-150 dark:border-zinc-800 rounded-xl font-bold">
-                  <span className="text-stone-800 dark:text-stone-300">₹{Number(currentPayable).toLocaleString("en-IN")}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleCopy(currentPayable.toString(), "amount")}
-                    className="text-red-650 hover:text-red-700 bg-transparent border-none cursor-pointer outline-none ml-2 shrink-0"
-                  >
-                    {copiedField === "amount" ? <Check className="h-4 w-4 text-green-600 animate-bounce" /> : <Copy className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
             </div>
+
+            {/* Open UPI App Button */}
+            <a
+              href={upiUrl}
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition shadow-xs select-none bg-red-600 hover:bg-red-700 text-white cursor-pointer"
+            >
+              <ExternalLink className="w-4 h-4 shrink-0" />
+              <span>Open UPI App (Pay ₹{Number(currentPayable).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})</span>
+            </a>
           </div>
         )}
       </div>
 
-      {/* Submission Form */}
-      <form onSubmit={handleSubmit} className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl p-5 space-y-5 shadow-sm">
-        
-        {/* Payment Amount Input */}
-        <div className="flex flex-col gap-1.5 select-none">
-          <label className="text-[10px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-wider block">Payment Amount *</label>
-          <div className="relative">
-            <span className="absolute left-3 top-2.5 text-stone-400 dark:text-stone-500 font-black">₹</span>
+      {/* Submission Form or Status Guard */}
+      {isUnderReview ? (
+        <div className="p-6 bg-blue-50 dark:bg-blue-955/20 border border-blue-200 dark:border-blue-900/30 rounded-3xl text-center space-y-3 select-none">
+          <Clock className="w-10 h-10 text-blue-600 dark:text-blue-400 mx-auto animate-pulse" />
+          <h3 className="text-sm font-black text-blue-950 dark:text-blue-300 uppercase tracking-wider">Payment Receipt Under Review</h3>
+          <p className="text-xs text-blue-800 dark:text-blue-400 max-w-md mx-auto leading-relaxed">
+            Your payment receipt for this electricity bill has already been submitted and is currently pending verification by the administrator.
+          </p>
+          <div className="pt-2">
+            <Button onClick={() => navigate("/electricity")} className="btn-primary-tenant font-black text-xs px-5 py-2.5 rounded-xl cursor-pointer">
+              Back to Electricity Bills
+            </Button>
+          </div>
+        </div>
+      ) : isFullyPaid ? (
+        <div className="p-6 bg-green-50 dark:bg-green-955/20 border border-green-200 dark:border-green-900/30 rounded-3xl text-center space-y-3 select-none">
+          <CheckCircle2 className="w-10 h-10 text-green-600 dark:text-green-400 mx-auto" />
+          <h3 className="text-sm font-black text-green-950 dark:text-green-300 uppercase tracking-wider">Bill Dues Paid in Full</h3>
+          <p className="text-xs text-green-800 dark:text-green-400 max-w-md mx-auto leading-relaxed">
+            There are no outstanding electricity dues on this bill for your account.
+          </p>
+          <div className="pt-2">
+            <Button onClick={() => navigate("/electricity")} className="btn-primary-tenant font-black text-xs px-5 py-2.5 rounded-xl cursor-pointer">
+              Back to Electricity Bills
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl p-5 space-y-5 shadow-sm">
+          {/* Payment Amount Input */}
+          <div className="flex flex-col gap-1.5 select-none">
+            <label className="text-[10px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-wider block">Payment Amount *</label>
+            <div className="relative">
+              <span className="absolute left-3 top-2.5 text-stone-400 dark:text-stone-500 font-black">₹</span>
+              <input
+                type="number"
+                step="0.01"
+                min="1"
+                required
+                max={maxPayable}
+                value={paymentAmount}
+                onChange={(e) => setPaymentAmount(e.target.value)}
+                className="w-full h-10 pl-8 pr-3 border border-slate-200 dark:border-zinc-800 rounded-xl bg-slate-50 dark:bg-zinc-950 text-xs font-semibold text-stone-850 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-red-600 transition-all font-mono"
+                placeholder={`Remaining: ₹${maxPayable}`}
+              />
+            </div>
+          </div>
+
+          {/* UTR Input */}
+          <div className="flex flex-col gap-1.5 select-none">
+            <label className="text-[10px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-wider block">Transaction Reference UTR Number *</label>
             <input
-              type="number"
-              step="0.01"
+              type="text"
               required
-              max={maxPayable}
-              value={paymentAmount}
-              onChange={(e) => setPaymentAmount(e.target.value)}
-              className="w-full h-10 pl-8 pr-3 border border-slate-200 dark:border-zinc-800 rounded-xl bg-slate-50 dark:bg-zinc-950 text-xs font-semibold text-stone-850 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-red-600 transition-all font-mono"
-              placeholder={`Remaining: ₹${maxPayable}`}
+              value={utrNumber}
+              onChange={(e) => setUtrNumber(e.target.value)}
+              className="w-full h-10 px-3 border border-slate-200 dark:border-zinc-800 rounded-xl bg-slate-50 dark:bg-zinc-950 text-xs font-semibold text-stone-850 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-red-600 transition-all font-mono uppercase"
+              placeholder="12-22 digit UTR number"
             />
           </div>
-        </div>
 
-        {/* UTR Input */}
-        <div className="flex flex-col gap-1.5 select-none">
-          <label className="text-[10px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-wider block">Transaction Reference UTR Number *</label>
-          <input
-            type="text"
-            required
-            value={utrNumber}
-            onChange={(e) => setUtrNumber(e.target.value)}
-            className="w-full h-10 px-3 border border-slate-200 dark:border-zinc-800 rounded-xl bg-slate-50 dark:bg-zinc-950 text-xs font-semibold text-stone-850 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-red-600 transition-all font-mono uppercase"
-            placeholder="12-22 digit UTR number"
-          />
-        </div>
-
-        {/* Remarks */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-wider block select-none">Remarks / Payment Notes (Optional)</label>
-          <input
-            type="text"
-            value={remarks}
-            onChange={(e) => setRemarks(e.target.value)}
-            className="w-full h-10 px-3 border border-slate-200 dark:border-zinc-800 rounded-xl bg-slate-50 dark:bg-zinc-950 text-xs font-semibold text-stone-850 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-red-600 transition-all"
-            placeholder="Bank used / timestamp details..."
-          />
-        </div>
-
-        {/* Screenshot Upload */}
-        <div className="select-none">
-          <label className="block text-[10px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-wider mb-2">
-            Upload Transaction Receipt Screenshot *
-          </label>
-          <div className="relative border-2 border-dashed border-slate-200 dark:border-zinc-800 hover:border-red-600/50 rounded-2xl p-5 text-center flex flex-col items-center justify-center transition-all bg-slate-50 dark:bg-zinc-950/20 cursor-pointer">
+          {/* Remarks */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-wider block select-none">Remarks / Payment Notes (Optional)</label>
             <input
-              type="file"
-              required
-              accept="image/*"
-              onChange={handleFileChange}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              type="text"
+              value={remarks}
+              onChange={(e) => setRemarks(e.target.value)}
+              className="w-full h-10 px-3 border border-slate-200 dark:border-zinc-800 rounded-xl bg-slate-50 dark:bg-zinc-950 text-xs font-semibold text-stone-850 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-red-600 transition-all"
+              placeholder="Bank used / timestamp details..."
             />
-            {screenshotPreview ? (
-              <div className="space-y-2">
-                <img src={screenshotPreview} alt="Screenshot preview" className="h-20 object-contain rounded-lg mx-auto border border-slate-200 dark:border-zinc-800 shadow-sm" />
-                <span className="text-xxs font-black text-red-600 block truncate max-w-xs">{screenshot?.name}</span>
-              </div>
-            ) : (
-              <div className="space-y-1.5">
-                <Upload className="h-6 w-6 text-stone-400 mx-auto" />
-                <span className="text-[10px] text-stone-500 font-bold block">Drag &amp; drop or click to upload</span>
-                <span className="text-[9px] text-stone-400 block">JPG, PNG, WEBP (Max 10 MB)</span>
-              </div>
-            )}
           </div>
-        </div>
 
-        {validationError && (
-          <div className="p-3 border border-red-200 bg-red-50 dark:bg-red-955/20 text-red-650 dark:text-red-400 text-xs font-bold rounded-xl flex items-center gap-2 select-none">
-            <AlertTriangle className="h-4.5 w-4.5 shrink-0" />
-            <span>{validationError}</span>
+          {/* Screenshot Upload */}
+          <div className="select-none">
+            <label className="block text-[10px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-wider mb-2">
+              Upload Transaction Receipt Screenshot *
+            </label>
+            <div className="relative border-2 border-dashed border-slate-200 dark:border-zinc-800 hover:border-red-600/50 rounded-2xl p-5 text-center flex flex-col items-center justify-center transition-all bg-slate-50 dark:bg-zinc-950/20 cursor-pointer">
+              <input
+                type="file"
+                required
+                accept="image/*"
+                onChange={handleFileChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              />
+              {screenshotPreview ? (
+                <div className="space-y-2">
+                  <img src={screenshotPreview} alt="Screenshot preview" className="h-20 object-contain rounded-lg mx-auto border border-slate-200 dark:border-zinc-800 shadow-sm" />
+                  <span className="text-xxs font-black text-red-600 block truncate max-w-xs">{screenshot?.name}</span>
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <Upload className="h-6 w-6 text-stone-400 mx-auto" />
+                  <span className="text-[10px] text-stone-500 font-bold block">Drag &amp; drop or click to upload</span>
+                  <span className="text-[9px] text-stone-400 block">JPG, PNG, WEBP (Max 10 MB)</span>
+                </div>
+              )}
+            </div>
           </div>
-        )}
 
-        {/* Submit */}
-        <Button
-          type="submit"
-          isLoading={isSubmitting}
-          className="btn-primary-tenant w-full flex items-center justify-center gap-1.5 h-10 font-bold uppercase tracking-wider text-white"
-        >
-          <Send className="h-4 w-4" />
-          <span>Submit Bill Payment Proof</span>
-        </Button>
-      </form>
+          {validationError && (
+            <div className="p-3 border border-red-200 bg-red-50 dark:bg-red-955/20 text-red-650 dark:text-red-400 text-xs font-bold rounded-xl flex items-center gap-2 select-none">
+              <AlertTriangle className="h-4.5 w-4.5 shrink-0" />
+              <span>{validationError}</span>
+            </div>
+          )}
+
+          {/* Submit */}
+          <Button
+            type="submit"
+            isLoading={isSubmitting}
+            className="btn-primary-tenant w-full flex items-center justify-center gap-1.5 h-10 font-bold uppercase tracking-wider text-white"
+          >
+            <Send className="h-4 w-4" />
+            <span>Submit Bill Payment Proof</span>
+          </Button>
+        </form>
+      )}
     </motion.div>
   );
 };

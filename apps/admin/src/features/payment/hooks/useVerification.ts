@@ -193,6 +193,12 @@ function useVerificationMutation<TVariables>(
     // Tenant obligation (used in Admin collection modal + Tenant portal)
     ["tenant-current-obligation"], // useTenantCurrentObligation()
     ["tenant-payment-history"],    // (if used)
+    // Electricity views — refresh immediately after verification/rejection
+    ["electricity-stats"],
+    ["electricity-dues"],
+    ["electricity-pending-verification"],
+    ["electricity-payment-history"],
+    ["my-electricity-bills"],
   ],
 ) {
   const qc = useQueryClient();

@@ -59,7 +59,7 @@ export const ElectricityPage: React.FC = () => {
   const [readingModalOpen, setReadingModalOpen] = useState(false);
 
   // Verification Modal
-  const [reviewBill, setReviewBill] = useState<ElectricityBill | null>(null);
+  const [reviewBill, setReviewBill] = useState<any | null>(null);
   const [verificationRemarks, setVerificationRemarks] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
 
@@ -136,7 +136,7 @@ export const ElectricityPage: React.FC = () => {
     }
   });
 
-  const { data: pendingBills, isLoading: loadingPending, refetch: refetchPending, isFetching: fetchingPending } = useQuery<ElectricityBill[]>({
+  const { data: pendingBills, isLoading: loadingPending, refetch: refetchPending, isFetching: fetchingPending } = useQuery<any[]>({
     queryKey: ["electricity-pending-verification"],
     queryFn: async () => {
       const res = await apiClient.get("/api/v1/electricity-bills/pending/verification");
@@ -186,7 +186,8 @@ export const ElectricityPage: React.FC = () => {
     if (!reviewBill) return;
     try {
       setIsVerifying(true);
-      await verifyMutation.mutateAsync({ billId: reviewBill.id, remarks: verificationRemarks });
+      const targetId = reviewBill.payment_id || reviewBill.id;
+      await verifyMutation.mutateAsync({ billId: targetId, remarks: verificationRemarks });
     } catch (err: any) {
       alert(err?.response?.data?.detail || "Verification failed");
     } finally {
@@ -202,7 +203,8 @@ export const ElectricityPage: React.FC = () => {
     }
     try {
       setIsVerifying(true);
-      await rejectMutation.mutateAsync({ billId: reviewBill.id, remarks: verificationRemarks });
+      const targetId = reviewBill.payment_id || reviewBill.id;
+      await rejectMutation.mutateAsync({ billId: targetId, remarks: verificationRemarks });
     } catch (err: any) {
       alert(err?.response?.data?.detail || "Rejection failed");
     } finally {
@@ -722,13 +724,13 @@ export const ElectricityPage: React.FC = () => {
                       </tr>
                     ))
                   ) : pendingBills && pendingBills.length > 0 ? (
-                    pendingBills.map(b => (
-                      <tr key={b.id} className="border-b border-border hover:bg-gray-55/20 dark:hover:bg-gray-855/10">
-                        <td className="p-3 font-bold text-primaryText dark:text-white">{b.tenant_name}</td>
+                    pendingBills.map((b: any) => (
+                      <tr key={b.payment_id || b.id} className="border-b border-border hover:bg-gray-55/20 dark:hover:bg-gray-855/10">
+                        <td className="p-3 font-bold text-primaryText dark:text-white">{b.tenant_name || "N/A"}</td>
                         <td className="p-3 font-semibold">{getMonthName(b.bill_month)} {b.bill_year}</td>
                         <td className="p-3 font-mono font-black text-primary">₹{Number(b.bill_amount).toLocaleString("en-IN")}</td>
-                        <td className="p-3 font-mono font-bold text-muted select-all">UTR: {b.meter_number || "N/A"}</td>
-                        <td className="p-3 text-secondaryText">{b.updated_at ? new Date(b.updated_at).toLocaleDateString("en-IN") : "N/A"}</td>
+                        <td className="p-3 font-mono font-bold text-muted select-all">UTR: {b.utr_number || b.meter_number || "N/A"}</td>
+                        <td className="p-3 text-secondaryText">{b.updated_at || b.submitted_at ? new Date(b.updated_at || b.submitted_at).toLocaleDateString("en-IN") : "N/A"}</td>
                         <td className="p-3 text-center">
                           <button
                             onClick={() => {
@@ -926,7 +928,7 @@ export const ElectricityPage: React.FC = () => {
               <div className="space-y-3.5 text-xs select-none">
                 <div>
                   <span className="text-[9px] text-muted font-black uppercase tracking-wider block">Resident Tenant</span>
-                  <span className="text-xs font-extrabold text-primaryText dark:text-white mt-0.5 block">{reviewBill.tenant_name}</span>
+                  <span className="text-xs font-extrabold text-primaryText dark:text-white mt-0.5 block">{reviewBill.tenant_name || "N/A"}</span>
                 </div>
                 <div>
                   <span className="text-[9px] text-muted font-black uppercase tracking-wider block">Billing Dues Amount</span>
@@ -936,13 +938,13 @@ export const ElectricityPage: React.FC = () => {
                 <div>
                   <span className="text-[9px] text-muted font-black uppercase tracking-wider block">UTR/Transaction Ref Reference</span>
                   <span className="text-xs font-mono font-black text-green-700 bg-green-50 border border-green-200 dark:bg-green-955/20 dark:text-green-400 dark:border-green-900/30 p-1.5 mt-0.5 rounded block select-all">
-                    {reviewBill.meter_number || "N/A"}
+                    {reviewBill.utr_number || reviewBill.meter_number || "N/A"}
                   </span>
                 </div>
                 <div>
                   <span className="text-[9px] text-muted font-black uppercase tracking-wider block">Submit Timestamp</span>
                   <span className="text-xs font-semibold text-secondaryText dark:text-gray-300 mt-0.5 block">
-                    {reviewBill.updated_at ? new Date(reviewBill.updated_at).toLocaleString("en-IN") : "N/A"}
+                    {reviewBill.updated_at || reviewBill.submitted_at ? new Date(reviewBill.updated_at || reviewBill.submitted_at).toLocaleString("en-IN") : "N/A"}
                   </span>
                 </div>
 
@@ -964,13 +966,13 @@ export const ElectricityPage: React.FC = () => {
                 <div>
                   <span className="text-[9px] text-muted font-black uppercase tracking-wider block mb-1">Receipt Screenshot Proof</span>
                   <div className="border border-border dark:border-gray-800 rounded-card overflow-hidden bg-gray-50 dark:bg-gray-955/50 h-56 flex items-center justify-center relative group">
-                    {reviewBill.meter_photo ? (
+                    {reviewBill.proof_image_url || reviewBill.meter_photo ? (
                       <img
-                        src={getMediaUrl(reviewBill.meter_photo)}
+                        src={getMediaUrl(reviewBill.proof_image_url || reviewBill.meter_photo)}
                         alt="Transaction Proof"
                         className="max-h-full max-w-full object-contain cursor-zoom-in"
                         onClick={() => {
-                          const url = getMediaUrl(reviewBill.meter_photo);
+                          const url = getMediaUrl(reviewBill.proof_image_url || reviewBill.meter_photo);
                           if (url) window.open(url, "_blank");
                         }}
                       />

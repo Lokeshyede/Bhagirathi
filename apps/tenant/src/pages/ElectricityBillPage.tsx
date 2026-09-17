@@ -17,22 +17,23 @@ export const ElectricityBillPage: React.FC = () => {
     }
   });
 
-  const getStatusBadge = (status: string, payStatus: string) => {
-    if (payStatus === "VERIFIED") {
+  const getStatusBadge = (status: string, payStatus: string, outstanding?: number) => {
+    const isSettled = payStatus === "VERIFIED" || payStatus === "PAID" || (outstanding !== undefined && Number(outstanding) <= 0);
+    if (isSettled) {
       return (
         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-green-50 text-green-700 dark:bg-green-955/20 dark:text-green-400 border border-green-200 dark:border-green-900/30">
           Paid &amp; Verified
         </span>
       );
     }
-    if (payStatus === "UNDER_REVIEW") {
+    if (payStatus === "UNDER_REVIEW" || payStatus === "Submitted") {
       return (
         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-blue-50 text-blue-700 dark:bg-blue-955/20 dark:text-blue-400 border border-blue-200 dark:border-blue-900/30">
           Under Review
         </span>
       );
     }
-    if (payStatus === "REJECTED") {
+    if (payStatus === "REJECTED" || payStatus === "Rejected") {
       return (
         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-red-50 text-red-700 dark:bg-red-955/20 dark:text-red-400 border border-red-200 dark:border-red-900/30 animate-pulse">
           Rejected
@@ -112,7 +113,9 @@ export const ElectricityBillPage: React.FC = () => {
       <div className="space-y-5">
         {bills && bills.length > 0 ? (
           bills.map((bill) => {
-            const isPayable = bill.status !== "PAID" && bill.payment_status !== "UNDER_REVIEW";
+            const outstandingAmt = Number(bill.outstanding ?? bill.my_share ?? 0);
+            const isUnderReview = bill.payment_status === "UNDER_REVIEW" || bill.payment_status === "Submitted";
+            const isPayable = outstandingAmt > 0 && !isUnderReview;
             return (
               <div
                 key={bill.id}
@@ -133,7 +136,7 @@ export const ElectricityBillPage: React.FC = () => {
                       </span>
                     </div>
                   </div>
-                  {getStatusBadge(bill.status, bill.payment_status)}
+                  {getStatusBadge(bill.status, bill.payment_status, bill.outstanding)}
                 </div>
 
                 {/* Details grid */}
