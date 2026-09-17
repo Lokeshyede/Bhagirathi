@@ -16,10 +16,12 @@ import {
 } from "lucide-react";
 import { NotificationBell } from "../features/notification/components/NotificationBell";
 import { NotificationDrawer } from "../features/notification/components/NotificationDrawer";
+import { usePushNotification } from "../features/notification/hooks/usePushNotification";
 import { motion, AnimatePresence } from "framer-motion";
 import { BhagirathiLogo } from "@bhagirathi/ui";
 
 export const DashboardLayout: React.FC = () => {
+  usePushNotification({ autoSubscribe: true });
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const { isDarkMode, toggleTheme } = useThemeStore();

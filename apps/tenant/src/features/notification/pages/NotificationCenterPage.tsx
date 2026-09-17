@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { Bell, CheckCheck, RefreshCw } from "lucide-react";
+import { Bell, CheckCheck, RefreshCw, AlertTriangle } from "lucide-react";
 import { useNotifications, useNotificationMutations, useUnreadCount } from "../hooks/api/useNotification";
 import { SearchBar } from "../components/SearchBar";
 import { NotificationFilters } from "../components/NotificationFilters";
 import { NotificationList } from "../components/NotificationList";
 import { Pagination } from "../components/Pagination";
-import { PushNotificationCard } from "../components/PushNotificationCard";
 import { useAuthStore } from "../../../store/auth";
 
 export const NotificationCenterPage: React.FC = () => {
@@ -80,8 +79,17 @@ export const NotificationCenterPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Web Push Notification Settings & Permission Toggle */}
-      <PushNotificationCard />
+      {typeof window !== "undefined" && "Notification" in window && Notification.permission === "denied" && (
+        <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/50 rounded-xl text-xs text-amber-800 dark:text-amber-300">
+          <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-semibold text-amber-900 dark:text-amber-200">Push Notifications Blocked in Browser</p>
+            <p className="text-amber-700 dark:text-amber-300 mt-0.5">
+              Notifications are currently blocked in your browser settings. To receive instant alerts when electricity bills or rent reminders arrive, allow notifications in your browser site settings.
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
         <NotificationFilters

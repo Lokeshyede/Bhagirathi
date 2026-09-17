@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { NotificationBell } from "../features/notification/components/NotificationBell";
 import { NotificationDrawer } from "../features/notification/components/NotificationDrawer";
+import { usePushNotification } from "../features/notification/hooks/usePushNotification";
 import {
   PageContainer,
   PageContent,
@@ -126,6 +127,7 @@ export const DashboardLayout: React.FC = () => {
     closeSearch,
   } = useLayout();
 
+  usePushNotification({ autoSubscribe: true });
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const { isDarkMode, toggleTheme } = useThemeStore();

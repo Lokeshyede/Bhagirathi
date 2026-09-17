@@ -1,7 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { apiClient } from "@bhagirathi/api-client";
 
 export type PushPermissionState = "unsupported" | "default" | "granted" | "denied";
+
+export interface PushNotificationOptions {
+  autoSubscribe?: boolean;
+}
 
 export interface PushNotificationState {
   isSupported: boolean;
@@ -25,12 +29,135 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return outputArray;
 }
 
-export function usePushNotification(): PushNotificationState {
+// In-memory session tracking to avoid redundant network calls
+let _globalLastSyncedEndpoint: string | null = null;
+let _globalIsSyncing = false;
+
+export function usePushNotification(options?: PushNotificationOptions): PushNotificationState {
+  const autoSubscribe = options?.autoSubscribe ?? true;
   const [isSupported, setIsSupported] = useState<boolean>(false);
   const [permission, setPermission] = useState<PushPermissionState>("default");
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const syncAttemptedRef = useRef<boolean>(false);
+
+  // Helper to ensure service worker is active
+  const getReadyRegistration = useCallback(async (): Promise<ServiceWorkerRegistration | null> => {
+    if (typeof window === "undefined" || !("serviceWorker" in navigator)) return null;
+    try {
+      let reg = await navigator.serviceWorker.getRegistration();
+      if (!reg) {
+        reg = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+      }
+      return await navigator.serviceWorker.ready;
+    } catch (err) {
+      console.warn("[Push] Failed to resolve service worker:", err);
+      return null;
+    }
+  }, []);
+
+  // Post subscription payload to backend
+  const sendSubscriptionToBackend = useCallback(async (sub: PushSubscription): Promise<boolean> => {
+    try {
+      const subJson = sub.toJSON();
+      await apiClient.post("/api/v1/notifications/push/subscribe", {
+        endpoint: sub.endpoint,
+        keys: {
+          p256dh: subJson.keys?.p256dh || "",
+          auth: subJson.keys?.auth || "",
+        },
+        user_agent: navigator.userAgent,
+      });
+      _globalLastSyncedEndpoint = sub.endpoint;
+      return true;
+    } catch (err) {
+      console.warn("[Push] Failed to synchronize subscription with backend:", err);
+      return false;
+    }
+  }, []);
+
+  // Create a new PushSubscription via PushManager
+  const createPushSubscription = useCallback(async (reg: ServiceWorkerRegistration): Promise<PushSubscription | null> => {
+    try {
+      let pubKey = (import.meta as any).env?.VITE_VAPID_PUBLIC_KEY;
+      if (!pubKey) {
+        const keyRes = await apiClient.get("/api/v1/notifications/push/public-key");
+        pubKey = keyRes.data?.public_key;
+      }
+      if (!pubKey) {
+        console.warn("[Push] VAPID public key not available.");
+        return null;
+      }
+      const convertedKey = urlBase64ToUint8Array(pubKey);
+      return await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: convertedKey as unknown as BufferSource,
+      });
+    } catch (err: any) {
+      console.warn("[Push] PushManager subscribe failed:", err);
+      return null;
+    }
+  }, []);
+
+  // Core automatic subscription & sync handler
+  const handleAutoSubscription = useCallback(async (currentPerm: NotificationPermission) => {
+    if (_globalIsSyncing) return;
+    _globalIsSyncing = true;
+    setIsLoading(true);
+
+    try {
+      const reg = await getReadyRegistration();
+      if (!reg) {
+        setIsLoading(false);
+        _globalIsSyncing = false;
+        return;
+      }
+
+      const sub = await reg.pushManager.getSubscription();
+
+      if (currentPerm === "granted") {
+        if (sub) {
+          // Subscription already exists on browser - reuse and sync with backend once per session
+          if (_globalLastSyncedEndpoint !== sub.endpoint) {
+            await sendSubscriptionToBackend(sub);
+          }
+          setIsSubscribed(true);
+        } else {
+          // Permission is granted but subscription is missing - automatically create & sync
+          const newSub = await createPushSubscription(reg);
+          if (newSub) {
+            await sendSubscriptionToBackend(newSub);
+            setIsSubscribed(true);
+          }
+        }
+      } else if (currentPerm === "default") {
+        // First visit / permission unprompted: safely prompt at appropriate safe point once per session
+        const hasPrompted = typeof sessionStorage !== "undefined" && sessionStorage.getItem("bhagirathi_push_prompted");
+        if (!hasPrompted) {
+          if (typeof sessionStorage !== "undefined") {
+            sessionStorage.setItem("bhagirathi_push_prompted", "true");
+          }
+          const requestedPerm = await Notification.requestPermission();
+          setPermission(requestedPerm as PushPermissionState);
+
+          if (requestedPerm === "granted") {
+            const newSub = await createPushSubscription(reg);
+            if (newSub) {
+              await sendSubscriptionToBackend(newSub);
+              setIsSubscribed(true);
+            }
+          }
+        }
+      }
+      // If "denied": do nothing, never prompt again, maintain state.
+    } catch (err: any) {
+      console.warn("[Push] Error during automatic push lifecycle:", err);
+    } finally {
+      setIsLoading(false);
+      _globalIsSyncing = false;
+    }
+  }, [createPushSubscription, getReadyRegistration, sendSubscriptionToBackend]);
 
   const checkStatus = useCallback(async () => {
     if (typeof window === "undefined") return;
@@ -47,32 +174,39 @@ export function usePushNotification(): PushNotificationState {
       return;
     }
 
-    setPermission(Notification.permission as PushPermissionState);
+    const currentPerm = Notification.permission;
+    setPermission(currentPerm as PushPermissionState);
 
     try {
-      const reg = await navigator.serviceWorker.ready;
-      const sub = await reg.pushManager.getSubscription();
-      setIsSubscribed(Boolean(sub));
+      const reg = await getReadyRegistration();
+      if (reg) {
+        const sub = await reg.pushManager.getSubscription();
+        setIsSubscribed(Boolean(sub));
+      }
     } catch (err: any) {
-      console.warn("[Push] Error checking subscription:", err);
+      console.warn("[Push] Error checking subscription status:", err);
     }
-  }, []);
+
+    if (autoSubscribe && !syncAttemptedRef.current) {
+      syncAttemptedRef.current = true;
+      await handleAutoSubscription(currentPerm);
+    }
+  }, [autoSubscribe, getReadyRegistration, handleAutoSubscription]);
 
   useEffect(() => {
     checkStatus();
   }, [checkStatus]);
 
+  // Explicit subscribe method (retained for backward compatibility)
   const subscribe = useCallback(async (): Promise<boolean> => {
     if (!isSupported) {
       setError("Push notifications are not supported by this browser.");
       return false;
     }
-
     setIsLoading(true);
     setError(null);
 
     try {
-      // 1. Request user permission (prompt occurs ONLY on explicit user trigger)
       const perm = await Notification.requestPermission();
       setPermission(perm as PushPermissionState);
 
@@ -81,38 +215,16 @@ export function usePushNotification(): PushNotificationState {
         return false;
       }
 
-      // 2. Ensure Service Worker is active
-      const reg = await navigator.serviceWorker.ready;
+      const reg = await getReadyRegistration();
+      if (!reg) throw new Error("Service worker registration not available.");
 
-      // 3. Resolve VAPID Public Key (env var fallback to backend endpoint)
-      let pubKey = (import.meta as any).env?.VITE_VAPID_PUBLIC_KEY;
-      if (!pubKey) {
-        const keyRes = await apiClient.get("/api/v1/notifications/push/public-key");
-        pubKey = keyRes.data?.public_key;
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) {
+        sub = await createPushSubscription(reg);
       }
+      if (!sub) throw new Error("Could not create PushSubscription.");
 
-      if (!pubKey) {
-        throw new Error("VAPID public key is not configured on the server.");
-      }
-
-      // 4. Subscribe via PushManager
-      const convertedKey = urlBase64ToUint8Array(pubKey);
-      const sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: convertedKey as unknown as BufferSource,
-      });
-
-      // 5. Send subscription details to backend
-      const subJson = sub.toJSON();
-      await apiClient.post("/api/v1/notifications/push/subscribe", {
-        endpoint: sub.endpoint,
-        keys: {
-          p256dh: subJson.keys?.p256dh || "",
-          auth: subJson.keys?.auth || "",
-        },
-        user_agent: navigator.userAgent,
-      });
-
+      await sendSubscriptionToBackend(sub);
       setIsSubscribed(true);
       return true;
     } catch (err: any) {
@@ -123,29 +235,30 @@ export function usePushNotification(): PushNotificationState {
     } finally {
       setIsLoading(false);
     }
-  }, [isSupported]);
+  }, [createPushSubscription, getReadyRegistration, isSupported, sendSubscriptionToBackend]);
 
+  // Explicit unsubscribe method (retained for backward compatibility)
   const unsubscribe = useCallback(async (): Promise<boolean> => {
     if (!isSupported) return false;
-
     setIsLoading(true);
     setError(null);
 
     try {
-      const reg = await navigator.serviceWorker.ready;
-      const sub = await reg.pushManager.getSubscription();
-
-      if (sub) {
-        try {
-          await apiClient.post("/api/v1/notifications/push/unsubscribe", {
-            endpoint: sub.endpoint,
-          });
-        } catch (apiErr) {
-          console.warn("[Push] Backend unregister notice failed:", apiErr);
+      const reg = await getReadyRegistration();
+      if (reg) {
+        const sub = await reg.pushManager.getSubscription();
+        if (sub) {
+          try {
+            await apiClient.post("/api/v1/notifications/push/unsubscribe", {
+              endpoint: sub.endpoint,
+            });
+          } catch (apiErr) {
+            console.warn("[Push] Backend unregister notice failed:", apiErr);
+          }
+          await sub.unsubscribe();
+          _globalLastSyncedEndpoint = null;
         }
-        await sub.unsubscribe();
       }
-
       setIsSubscribed(false);
       return true;
     } catch (err: any) {
@@ -156,7 +269,7 @@ export function usePushNotification(): PushNotificationState {
     } finally {
       setIsLoading(false);
     }
-  }, [isSupported]);
+  }, [getReadyRegistration, isSupported]);
 
   return {
     isSupported,
