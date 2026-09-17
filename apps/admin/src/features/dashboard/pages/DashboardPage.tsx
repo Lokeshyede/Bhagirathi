@@ -11,7 +11,7 @@ import {
   useActivityLog,
   useDashboardOccupancy,
 } from "../hooks/api/useDashboard";
-import { useHostels, useBuildings } from "../../hostel/hooks/api/useHostel";
+import { useHostels, useBuildings, useRooms } from "../../hostel/hooks/api/useHostel";
 
 // New Redesigned Dashboard Components
 import { DashboardHeader } from "../components/DashboardHeader";
@@ -36,19 +36,28 @@ export const DashboardPage: React.FC = () => {
     dateRange,
     hostelId,
     buildingId,
+    roomId,
+    search,
     status,
     setDateRange,
     setHostelId,
     setBuildingId,
+    setRoomId,
+    setSearch,
     setStatus,
     resetFilters,
   } = useDashboardStore();
 
   const filters = { dateRange, hostelId, buildingId, status };
 
-  // Load Hostels & Buildings for filter toolbar
+  // Load Hostels, Buildings & Rooms for filter toolbar
   const { data: hostels } = useHostels();
   const { data: buildings } = useBuildings(hostelId);
+  const { data: rooms } = useRooms(
+    hostelId || buildingId
+      ? { hostel_id: hostelId || undefined, building_id: buildingId || undefined }
+      : undefined
+  );
 
   // Load API data queries
   const summaryQuery = useDashboardSummary(filters);
@@ -152,18 +161,23 @@ export const DashboardPage: React.FC = () => {
       {/* 1. Header Greeting & Real-time Live Clock */}
       <DashboardHeader occupancyRate={occupancyRate} />
 
-      {/* 2. Compact Horizontal Filter Bar */}
+      {/* 2. Redesigned Filter & Search Bar */}
       <DashboardFilterBar
         hostels={hostels || []}
         buildings={buildings || []}
+        rooms={rooms || []}
         hostelId={hostelId}
         buildingId={buildingId}
+        roomId={roomId}
         status={status}
         dateRange={dateRange}
+        search={search}
         onHostelChange={setHostelId}
         onBuildingChange={setBuildingId}
+        onRoomChange={setRoomId}
         onStatusChange={setStatus}
         onDateRangeChange={setDateRange}
+        onSearchChange={setSearch}
         onReset={handleResetFilters}
         onRefresh={handleRefresh}
         isRefreshing={isFetching}

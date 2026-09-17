@@ -1,5 +1,5 @@
 // Bhagirathi PWA Service Worker - Static Shell Cache
-const CACHE_NAME = 'bhagirathi-shell-v2';
+const CACHE_NAME = 'bhagirathi-shell-v3';
 
 // Critical shell assets to precache on install
 const PRECACHE_ASSETS = [
