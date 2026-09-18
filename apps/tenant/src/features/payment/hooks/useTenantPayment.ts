@@ -91,7 +91,6 @@ export const usePayRentMutation = () => {
       // new payment state immediately without waiting for staleTime.
       queryClient.invalidateQueries({ queryKey: ["tenant-current-bill"] });
       queryClient.invalidateQueries({ queryKey: ["current-bill"] });
-      queryClient.invalidateQueries({ queryKey: ["my-payment-history"] });
       queryClient.invalidateQueries({ queryKey: ["my-rent-ledger"] });
       queryClient.invalidateQueries({ queryKey: ["tenant-dashboard-summary"] });
       queryClient.invalidateQueries({ queryKey: ["tenant-payment-summary"] });
@@ -159,7 +158,6 @@ export const usePayAdvanceRentMutation = () => {
       queryClient.invalidateQueries({ queryKey: ["tenant-current-bill"] });
       queryClient.invalidateQueries({ queryKey: ["current-bill"] });
       queryClient.invalidateQueries({ queryKey: ["advance-payment-context"] });
-      queryClient.invalidateQueries({ queryKey: ["my-payment-history"] });
       queryClient.invalidateQueries({ queryKey: ["my-rent-ledger"] });
       queryClient.invalidateQueries({ queryKey: ["tenant-dashboard-summary"] });
       queryClient.invalidateQueries({ queryKey: ["tenant-payment-summary"] });

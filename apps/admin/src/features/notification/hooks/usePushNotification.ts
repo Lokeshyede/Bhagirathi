@@ -5,6 +5,11 @@ export type PushPermissionState = "unsupported" | "default" | "granted" | "denie
 
 export interface PushNotificationOptions {
   autoSubscribe?: boolean;
+  /** Pass the authenticated user's ID to scope sync state per-user.
+   *  This prevents a previous user's sync record from blocking a new user
+   *  after logout/login on the same browser tab without a full page reload.
+   */
+  userId?: string | null;
 }
 
 export interface PushNotificationState {
@@ -29,12 +34,34 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return outputArray;
 }
 
-// In-memory session tracking to avoid redundant network calls
-let _globalLastSyncedEndpoint: string | null = null;
-let _globalIsSyncing = false;
+// ── User-scoped session deduplication ─────────────────────────────────────────
+//
+// Previously these were bare module-level variables:
+//   let _globalLastSyncedEndpoint: string | null = null;
+//   let _globalIsSyncing = false;
+//
+// This caused a state-leak bug: when an Admin logged out and a Tenant logged in
+// on the same browser tab (without a full page reload), the Admin's synced
+// endpoint blocked the Tenant's subscription from being registered with the
+// correct backend user_id.
+//
+// Fix: key all deduplication by userId so each authenticated identity maintains
+// its own independent sync state. Module-level Maps persist for the JS module
+// lifetime (entire tab session), which is correct — we want to avoid redundant
+// network calls within the same user's session, but not across user sessions.
+// ──────────────────────────────────────────────────────────────────────────────
+
+/** Map<userId, lastSyncedEndpoint> — tracks which endpoint was last confirmed
+ *  synced to the backend for each user. Cleared on unsubscribe. */
+const _syncedEndpointByUser = new Map<string, string>();
+
+/** Set<userId> — guards against concurrent sync calls for the same user. */
+const _syncingUsers = new Set<string>();
 
 export function usePushNotification(options?: PushNotificationOptions): PushNotificationState {
   const autoSubscribe = options?.autoSubscribe ?? true;
+  const userId = options?.userId ?? null;
+
   const [isSupported, setIsSupported] = useState<boolean>(false);
   const [permission, setPermission] = useState<PushPermissionState>("default");
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
@@ -69,13 +96,25 @@ export function usePushNotification(options?: PushNotificationOptions): PushNoti
         },
         user_agent: navigator.userAgent,
       });
-      _globalLastSyncedEndpoint = sub.endpoint;
+      // Record the synced endpoint scoped to this user
+      if (userId) {
+        _syncedEndpointByUser.set(userId, sub.endpoint);
+      }
       return true;
-    } catch (err) {
-      console.warn("[Push] Failed to synchronize subscription with backend:", err);
+    } catch (err: any) {
+      // Handle specific HTTP errors gracefully — no infinite retry
+      const httpStatus = err?.response?.status;
+      if (httpStatus === 401 || httpStatus === 403) {
+        console.warn("[Push] Subscription sync unauthorized (session may have expired).");
+      } else if (httpStatus === 409) {
+        console.warn("[Push] Subscription already exists for this endpoint (idempotent).");
+        if (userId) _syncedEndpointByUser.set(userId, sub.endpoint);
+      } else {
+        console.warn("[Push] Failed to synchronize subscription with backend:", err);
+      }
       return false;
     }
-  }, []);
+  }, [userId]);
 
   // Create a new PushSubscription via PushManager
   const createPushSubscription = useCallback(async (reg: ServiceWorkerRegistration): Promise<PushSubscription | null> => {
@@ -100,64 +139,65 @@ export function usePushNotification(options?: PushNotificationOptions): PushNoti
     }
   }, []);
 
-  // Core automatic subscription & sync handler
+  // Core automatic subscription & sync handler.
+  //
+  // IMPORTANT — Permission handling:
+  //
+  //   GRANTED  → silently restore/verify the existing PushSubscription and
+  //              sync it to the backend. No user prompt.
+  //
+  //   DEFAULT  → do NOT call Notification.requestPermission() here.
+  //              Modern browsers require a direct user gesture (click/tap) to
+  //              trigger the permission popup. Calling requestPermission() from
+  //              useEffect is silently rejected on many mobile browsers and
+  //              causes deprecation warnings on desktop Chrome.
+  //              The explicit subscribe() method is called from user-initiated
+  //              events (e.g. a settings toggle) and correctly calls
+  //              requestPermission() there.
+  //
+  //   DENIED   → do nothing. Never prompt again.
+  //
   const handleAutoSubscription = useCallback(async (currentPerm: NotificationPermission) => {
-    if (_globalIsSyncing) return;
-    _globalIsSyncing = true;
+    // Guard against concurrent calls for the same user
+    const syncKey = userId ?? "__anon__";
+    if (_syncingUsers.has(syncKey)) return;
+    _syncingUsers.add(syncKey);
     setIsLoading(true);
 
     try {
       const reg = await getReadyRegistration();
-      if (!reg) {
-        setIsLoading(false);
-        _globalIsSyncing = false;
-        return;
-      }
-
-      const sub = await reg.pushManager.getSubscription();
+      if (!reg) return;
 
       if (currentPerm === "granted") {
+        const sub = await reg.pushManager.getSubscription();
+
         if (sub) {
-          // Subscription already exists on browser - reuse and sync with backend once per session
-          if (_globalLastSyncedEndpoint !== sub.endpoint) {
+          // Subscription already exists — sync to backend only if not already
+          // synced for this specific user+endpoint pair this session.
+          const alreadySynced = userId && _syncedEndpointByUser.get(userId) === sub.endpoint;
+          if (!alreadySynced) {
             await sendSubscriptionToBackend(sub);
           }
           setIsSubscribed(true);
         } else {
-          // Permission is granted but subscription is missing - automatically create & sync
+          // Permission is granted but browser subscription is missing
+          // (e.g. subscription expired or cleared). Silently recreate it.
           const newSub = await createPushSubscription(reg);
           if (newSub) {
             await sendSubscriptionToBackend(newSub);
             setIsSubscribed(true);
           }
         }
-      } else if (currentPerm === "default") {
-        // First visit / permission unprompted: safely prompt at appropriate safe point once per session
-        const hasPrompted = typeof sessionStorage !== "undefined" && sessionStorage.getItem("bhagirathi_push_prompted");
-        if (!hasPrompted) {
-          if (typeof sessionStorage !== "undefined") {
-            sessionStorage.setItem("bhagirathi_push_prompted", "true");
-          }
-          const requestedPerm = await Notification.requestPermission();
-          setPermission(requestedPerm as PushPermissionState);
-
-          if (requestedPerm === "granted") {
-            const newSub = await createPushSubscription(reg);
-            if (newSub) {
-              await sendSubscriptionToBackend(newSub);
-              setIsSubscribed(true);
-            }
-          }
-        }
       }
-      // If "denied": do nothing, never prompt again, maintain state.
+      // "default" — wait for explicit user interaction, do NOT prompt here.
+      // "denied"  — do nothing.
     } catch (err: any) {
       console.warn("[Push] Error during automatic push lifecycle:", err);
     } finally {
       setIsLoading(false);
-      _globalIsSyncing = false;
+      _syncingUsers.delete(syncKey);
     }
-  }, [createPushSubscription, getReadyRegistration, sendSubscriptionToBackend]);
+  }, [createPushSubscription, getReadyRegistration, sendSubscriptionToBackend, userId]);
 
   const checkStatus = useCallback(async () => {
     if (typeof window === "undefined") return;
@@ -197,7 +237,8 @@ export function usePushNotification(options?: PushNotificationOptions): PushNoti
     checkStatus();
   }, [checkStatus]);
 
-  // Explicit subscribe method (retained for backward compatibility)
+  // Explicit subscribe — MUST be called from a direct user interaction (click/tap).
+  // This is the only safe place to call Notification.requestPermission().
   const subscribe = useCallback(async (): Promise<boolean> => {
     if (!isSupported) {
       setError("Push notifications are not supported by this browser.");
@@ -237,7 +278,8 @@ export function usePushNotification(options?: PushNotificationOptions): PushNoti
     }
   }, [createPushSubscription, getReadyRegistration, isSupported, sendSubscriptionToBackend]);
 
-  // Explicit unsubscribe method (retained for backward compatibility)
+  // Explicit unsubscribe — clears user-scoped sync state so the next login
+  // on this device correctly re-syncs the subscription.
   const unsubscribe = useCallback(async (): Promise<boolean> => {
     if (!isSupported) return false;
     setIsLoading(true);
@@ -256,7 +298,10 @@ export function usePushNotification(options?: PushNotificationOptions): PushNoti
             console.warn("[Push] Backend unregister notice failed:", apiErr);
           }
           await sub.unsubscribe();
-          _globalLastSyncedEndpoint = null;
+          // Clear user-scoped sync state so next login re-syncs correctly
+          if (userId) {
+            _syncedEndpointByUser.delete(userId);
+          }
         }
       }
       setIsSubscribed(false);
@@ -269,7 +314,7 @@ export function usePushNotification(options?: PushNotificationOptions): PushNoti
     } finally {
       setIsLoading(false);
     }
-  }, [getReadyRegistration, isSupported]);
+  }, [getReadyRegistration, isSupported, userId]);
 
   return {
     isSupported,

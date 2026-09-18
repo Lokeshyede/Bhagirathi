@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@bhagirathi/api-client";
 import { Button } from "@bhagirathi/ui";
 import { ArrowLeft, Upload, AlertTriangle, Zap, Copy, Check, Send, ExternalLink, Clock, CheckCircle2 } from "lucide-react";
@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 export const PayElectricityPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [utrNumber, setUtrNumber] = useState("");
   const [remarks, setRemarks] = useState("");
@@ -118,6 +119,9 @@ export const PayElectricityPage: React.FC = () => {
           "Content-Type": "multipart/form-data"
         }
       });
+
+      // Invalidate electricity bill cache so ElectricityBillPage reflects "Under Review" immediately
+      queryClient.invalidateQueries({ queryKey: ["my-electricity-bills"] });
 
       alert("Electricity payment receipt submitted successfully! Pending verification by Admin.");
       navigate("/electricity");

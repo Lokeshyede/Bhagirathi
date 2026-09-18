@@ -157,6 +157,7 @@ export const ElectricityPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ["electricity-dues"] });
       queryClient.invalidateQueries({ queryKey: ["electricity-pending-verification"] });
       queryClient.invalidateQueries({ queryKey: ["electricity-payment-history"] });
+      queryClient.invalidateQueries({ queryKey: ["electricity-history"] });
       alert("Payment verified successfully!");
       setReviewBill(null);
       setVerificationRemarks("");
@@ -175,6 +176,7 @@ export const ElectricityPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ["electricity-dues"] });
       queryClient.invalidateQueries({ queryKey: ["electricity-pending-verification"] });
       queryClient.invalidateQueries({ queryKey: ["electricity-payment-history"] });
+      queryClient.invalidateQueries({ queryKey: ["electricity-history"] });
       alert("Payment rejected.");
       setReviewBill(null);
       setVerificationRemarks("");
@@ -513,7 +515,6 @@ export const ElectricityPage: React.FC = () => {
                   <option value="">All Statuses</option>
                   <option value="PENDING">PENDING</option>
                   <option value="PAID">PAID</option>
-                  <option value="OVERDUE">OVERDUE</option>
                 </select>
               </div>
             </div>

@@ -129,7 +129,7 @@ export const BillReadingPage: React.FC = () => {
       formData.append("current_reading", currentVal.toString());
       formData.append("remarks", remarks);
       if (photoFile) {
-        formData.append("meter_photo", photoFile);
+        formData.append("meter_image", photoFile);
       }
 
       if (meterType === "Electricity") {

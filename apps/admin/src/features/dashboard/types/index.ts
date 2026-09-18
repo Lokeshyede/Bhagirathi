@@ -53,7 +53,7 @@ export interface RecentPaymentData {
   room_number: string;
   amount: number;
   date: string;
-  status: "PENDING" | "VERIFIED" | "FAILED";
+  status: "PENDING" | "VERIFIED" | "PAID" | "REJECTED" | "UNDER_REVIEW" | "PARTIALLY_PAID" | "CANCELLED" | "FAILED" | "OVERDUE";
 }
 
 export interface RecentComplaintData {

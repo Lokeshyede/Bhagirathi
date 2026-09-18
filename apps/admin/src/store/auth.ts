@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { User, AuthState } from "@bhagirathi/types";
+import { queryClient, apiClient } from "@bhagirathi/api-client";
 
 // Portal-specific storage keys — isolated from Tenant & Maintenance portals
 const TOKEN_KEY = "admin_auth_token";
@@ -44,10 +45,27 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => {
     },
 
     logout: () => {
-      localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(REFRESH_KEY);
-      localStorage.removeItem(USER_KEY);
+      const refreshToken = typeof localStorage !== "undefined" ? localStorage.getItem(REFRESH_KEY) : null;
+
+      // 1. Immediately wipe local storage session keys
+      if (typeof localStorage !== "undefined") {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(REFRESH_KEY);
+        localStorage.removeItem(USER_KEY);
+      }
+
+      // 2. Clear React Query cache immediately so no stale data leaks to another session
+      queryClient.clear();
+
+      // 3. Reset Zustand in-memory state
       set({ user: null, token: null, isAuthenticated: false });
+
+      // 4. Server-side token revocation (async, non-blocking)
+      if (refreshToken) {
+        apiClient.post("/api/v1/auth/logout", { refresh_token: refreshToken }).catch(() => {
+          // Non-critical: server unreachable or token already revoked
+        });
+      }
     },
 
     updateUser: (updatedUser: User) => {

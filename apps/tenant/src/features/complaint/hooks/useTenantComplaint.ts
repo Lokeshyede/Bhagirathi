@@ -77,6 +77,8 @@ export const useRaiseComplaintMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-complaints"] });
       queryClient.invalidateQueries({ queryKey: ["complaints-dashboard"] });
+      // C2-010 FIX: Refresh tenant dashboard complaint count card immediately
+      queryClient.invalidateQueries({ queryKey: ["tenant-dashboard-summary"] });
     }
   });
 };

@@ -67,8 +67,12 @@ export const useApprovePayment = () => {
     },
     onSuccess: (_, paymentId) => {
       queryClient.invalidateQueries({ queryKey: ["admin-payments"] });
+      queryClient.invalidateQueries({ queryKey: ["payment-submissions"] });
       queryClient.invalidateQueries({ queryKey: ["admin-payment-details", paymentId] });
       queryClient.invalidateQueries({ queryKey: ["admin-payment-timeline", paymentId] });
+      // Refresh admin dashboard aggregates that show payment KPIs
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["rent-collection"] });
     }
   });
 };
@@ -85,8 +89,12 @@ export const useRejectPayment = () => {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["admin-payments"] });
+      queryClient.invalidateQueries({ queryKey: ["payment-submissions"] });
       queryClient.invalidateQueries({ queryKey: ["admin-payment-details", variables.paymentId] });
       queryClient.invalidateQueries({ queryKey: ["admin-payment-timeline", variables.paymentId] });
+      // Refresh admin dashboard aggregates that show payment KPIs
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["rent-collection"] });
     }
   });
 };

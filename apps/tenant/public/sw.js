@@ -195,9 +195,19 @@ self.addEventListener('notificationclick', (event) => {
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
       for (const client of windowClients) {
         if (client.url.startsWith(self.location.origin) && 'focus' in client) {
-          return client.navigate(fullTargetUrl).then((focusedClient) => {
-            return focusedClient ? focusedClient.focus() : client.focus();
-          });
+          // client.navigate() is not supported on Safari (iOS/macOS).
+          // Use it when available; fall back to postMessage so the app can
+          // handle navigation via its own service worker message listener.
+          if (typeof client.navigate === 'function') {
+            return client.navigate(fullTargetUrl)
+              .then((fc) => (fc || client).focus())
+              .catch(() => client.focus());
+          } else {
+            // Safari fallback: send a NAVIGATE message and focus the window.
+            // The app listens for this in main.tsx and performs window.location.href.
+            client.postMessage({ type: 'NAVIGATE', url: fullTargetUrl });
+            return client.focus();
+          }
         }
       }
       if (clients.openWindow) {

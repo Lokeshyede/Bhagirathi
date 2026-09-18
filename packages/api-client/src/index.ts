@@ -14,7 +14,12 @@ const getApiBaseUrl = (): string => {
     proc?.env?.VITE_API_URL;
 
   if (envUrl) {
-    return String(envUrl).replace(/\/+$/, "");
+    const cleaned = String(envUrl).replace(/\/+$/, "").trim();
+    // If cleaned is non-empty (e.g. "https://..." or "http://..."), use it.
+    // If it was "/" alone, do not treat as a valid remote backend URL.
+    if (cleaned !== "") {
+      return cleaned;
+    }
   }
 
   if (typeof window !== "undefined" && window.location) {
@@ -31,7 +36,7 @@ const getApiBaseUrl = (): string => {
   }
 
   throw new Error(
-    "API base URL is not configured. Set VITE_API_BASE_URL."
+    "API base URL is not configured. Set VITE_API_URL to your backend URL (e.g. https://bhagirathibackend-production.up.railway.app)."
   );
 };
 // ─────────────────────────────────────────────────────────────────────────────
@@ -237,7 +242,8 @@ apiClient.interceptors.response.use(
       // Prevent infinite loop on auth endpoints
       if (
         originalRequest.url?.includes("/auth/login") ||
-        originalRequest.url?.includes("/auth/refresh")
+        originalRequest.url?.includes("/auth/refresh") ||
+        originalRequest.url?.includes("/auth/logout")
       ) {
         return Promise.reject(error);
       }

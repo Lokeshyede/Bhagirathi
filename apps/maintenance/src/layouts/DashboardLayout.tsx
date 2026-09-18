@@ -21,8 +21,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { BhagirathiLogo } from "@bhagirathi/ui";
 
 export const DashboardLayout: React.FC = () => {
-  usePushNotification({ autoSubscribe: true });
   const user = useAuthStore((state) => state.user);
+  usePushNotification({ autoSubscribe: true, userId: user?.id ?? null });
+
   const logout = useAuthStore((state) => state.logout);
   const { isDarkMode, toggleTheme } = useThemeStore();
   const location = useLocation();

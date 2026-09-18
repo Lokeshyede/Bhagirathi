@@ -127,9 +127,10 @@ export const DashboardLayout: React.FC = () => {
     closeSearch,
   } = useLayout();
 
-  usePushNotification({ autoSubscribe: true });
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
+  usePushNotification({ autoSubscribe: true, userId: user?.id ?? null });
+
   const { isDarkMode, toggleTheme } = useThemeStore();
   const location = useLocation();
   const navigate = useNavigate();

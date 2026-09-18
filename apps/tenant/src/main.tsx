@@ -13,6 +13,17 @@ initApiClient("tenant");
 // Register PWA service worker for app shell caching (active only in production)
 registerServiceWorker();
 
+// Handle notification-click navigation from the service worker.
+// When WindowClient.navigate() is unavailable (Safari iOS/macOS), the SW sends
+// a NAVIGATE postMessage. This listener performs the actual route change.
+if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+  navigator.serviceWorker.addEventListener("message", (event: MessageEvent) => {
+    if (event.data?.type === "NAVIGATE" && typeof event.data?.url === "string") {
+      window.location.href = event.data.url;
+    }
+  });
+}
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />
