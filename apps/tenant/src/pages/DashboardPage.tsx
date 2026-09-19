@@ -115,6 +115,7 @@ export const DashboardPage: React.FC = () => {
 
   // ── Data ──────────────────────────────────────────────────────────────
   const overview = dashboard.overview || {};
+  const roomCapacity = dashboard?.room_card?.capacity ?? overview?.capacity;
   const payable = dashboard.total_payable || {};
   const notices = dashboard.notices || [];
 
@@ -442,15 +443,21 @@ export const DashboardPage: React.FC = () => {
               <div className="bg-slate-50 dark:bg-zinc-800/40 rounded-xl p-3">
                 <p className="text-[9px] text-gray-400 uppercase font-black tracking-wider mb-1">Room Type</p>
                 <p className="font-black text-sm text-gray-800 dark:text-gray-200">
-                  {overview.capacity
-                    ? overview.capacity === 1
-                      ? "Single"
-                      : overview.capacity === 2
-                      ? "Double"
-                      : `${overview.capacity} Share`
-                    : "Double"}
+                  {roomCapacity === 1
+                    ? "Single"
+                    : roomCapacity === 2
+                    ? "Double"
+                    : roomCapacity && roomCapacity >= 3
+                    ? `${roomCapacity} Share`
+                    : "N/A"}
                 </p>
-                <p className="text-[10px] text-gray-500 font-semibold">Sharing</p>
+                <p className="text-[10px] text-gray-500 font-semibold">
+                  {roomCapacity === 1
+                    ? "Occupancy"
+                    : roomCapacity && roomCapacity >= 2
+                    ? "Sharing"
+                    : "N/A"}
+                </p>
               </div>
             </div>
           </div>
