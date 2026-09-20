@@ -37,7 +37,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         </div>
 
         {actions && (
-          <div className="flex items-center gap-3 shrink-0 self-start sm:self-center">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 self-start sm:self-center">
             {actions}
           </div>
         )}

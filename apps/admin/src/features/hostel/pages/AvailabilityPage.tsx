@@ -170,10 +170,10 @@ export default function AvailabilityPage() {
                    </tr>
                    
                    {expandedRooms[room.room_id] && (
-                     <tr className="bg-gray-50/30 dark:bg-gray-800/30">
-                       <td colSpan={6} className="p-0 border-b border-border dark:border-gray-800">
-                          <div className="pl-16 pr-8 py-4">
-                             <table className="w-full text-sm">
+                      <tr className="bg-gray-50/30 dark:bg-gray-800/30">
+                        <td colSpan={6} className="p-0 border-b border-border dark:border-gray-800">
+                           <div className="px-3 sm:pl-16 sm:pr-8 py-4 overflow-x-auto">
+                              <table className="w-full text-sm">
                                <thead className="border-b border-border dark:border-gray-800">
                                  <tr>
                                    <th className="pb-2 text-xs font-bold uppercase tracking-wider text-muted">Bed Number</th>

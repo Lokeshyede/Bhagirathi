@@ -253,12 +253,12 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
       </div>
 
       {/* ── Tabs & Filter Controls ───────────────────────────────────── */}
-      <div className="px-5 py-3 border-b border-border dark:border-gray-800 bg-gray-50/40 dark:bg-gray-950/30 flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="px-3 sm:px-5 py-3 border-b border-border dark:border-gray-800 bg-gray-50/40 dark:bg-gray-950/30 flex flex-col md:flex-row md:items-center justify-between gap-3">
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-1.5 p-1 bg-gray-200/60 dark:bg-gray-800 rounded-xl">
+        <div className="flex items-center gap-1.5 p-1 bg-gray-200/60 dark:bg-gray-800 rounded-xl overflow-x-auto scrollbar-none max-w-full">
           <button
             onClick={() => setActiveTab("due_today")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1.5 shrink-0 ${
               activeTab === "due_today"
                 ? "bg-white dark:bg-gray-900 text-primaryText dark:text-white shadow-sm"
                 : "text-muted dark:text-gray-400 hover:text-primaryText"
@@ -278,7 +278,7 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
 
           <button
             onClick={() => setActiveTab("overdue")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1.5 shrink-0 ${
               activeTab === "overdue"
                 ? "bg-white dark:bg-gray-900 text-red-600 dark:text-red-400 shadow-sm"
                 : "text-muted dark:text-gray-400 hover:text-red-600"
@@ -298,7 +298,7 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
 
           <button
             onClick={() => setActiveTab("upcoming")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1.5 shrink-0 ${
               activeTab === "upcoming"
                 ? "bg-white dark:bg-gray-900 text-purple-600 dark:text-purple-400 shadow-sm"
                 : "text-muted dark:text-gray-400 hover:text-purple-600"
@@ -318,7 +318,7 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
         </div>
 
         {/* Filter / Search Inputs */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full md:w-auto">
           {/* Search box */}
           <div className="relative flex-1 sm:w-60">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted dark:text-gray-500" />

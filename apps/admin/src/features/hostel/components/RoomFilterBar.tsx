@@ -272,9 +272,9 @@ export const RoomFilterBar: React.FC<RoomFilterBarProps> = ({
         </div>
 
         {/* Right Side: Search Input + Clear + Apply Buttons */}
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+        <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
           {/* Search Box */}
-          <div className="relative min-w-[180px] sm:min-w-[220px] flex-1 sm:flex-initial">
+          <div className="relative w-full sm:w-auto min-w-0 sm:min-w-[220px] flex-1 sm:flex-initial">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"

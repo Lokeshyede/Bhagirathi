@@ -138,7 +138,7 @@ export const RoomDetailPage: React.FC = () => {
           </div>
         }
         actions={
-          <div className="flex items-center gap-2 text-xs select-none">
+          <div className="flex flex-wrap items-center gap-2 text-xs select-none">
             <div className="text-right mr-4 hidden sm:block">
               <span className="text-[10px] font-bold text-muted dark:text-gray-500 uppercase tracking-widest block">
                 Occupancy Rate

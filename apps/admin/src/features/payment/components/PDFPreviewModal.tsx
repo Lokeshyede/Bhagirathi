@@ -64,11 +64,11 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ type: "spring", stiffness: 350, damping: 30 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6"
+            className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6"
           >
-            <div className="w-full max-w-4xl h-[85vh] rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-2xl flex flex-col overflow-hidden">
+            <div className="w-full max-w-4xl h-[90vh] sm:h-[85vh] rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-2xl flex flex-col overflow-hidden">
               {/* Header */}
-              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-850 flex-shrink-0">
+              <div className="flex items-center justify-between px-3 sm:px-5 py-3 sm:py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-850 flex-shrink-0">
                 <div>
                   <h3 className="font-bold text-gray-900 dark:text-white text-sm">Receipt PDF Preview</h3>
                   <p className="text-xs text-gray-500">{receiptNumber}</p>

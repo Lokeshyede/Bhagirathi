@@ -40,7 +40,7 @@ export const SettingsPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* Navigation Sidebar/Tab List */}
-        <div className="lg:col-span-4 bg-white dark:bg-gray-900 border border-border dark:border-gray-800 rounded-card p-4 shadow-card space-y-1 select-none">
+        <div className="lg:col-span-4 bg-white dark:bg-gray-900 border border-border dark:border-gray-800 rounded-card p-2 sm:p-4 shadow-card flex flex-row lg:flex-col overflow-x-auto lg:overflow-visible gap-1 lg:space-y-1 select-none scrollbar-none">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = tab.id === activeTab;
@@ -48,7 +48,7 @@ export const SettingsPage: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex w-full items-center gap-3 px-4 py-3 rounded text-xs font-bold uppercase tracking-wider transition cursor-pointer text-left ${
+                className={`flex w-auto lg:w-full shrink-0 whitespace-nowrap items-center gap-2.5 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded text-xs font-bold uppercase tracking-wider transition cursor-pointer text-left ${
                   isActive
                     ? "bg-primary/5 text-primary border border-primary/20"
                     : "text-secondaryText dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-805 border border-transparent"

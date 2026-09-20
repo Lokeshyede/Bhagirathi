@@ -110,14 +110,14 @@ export const NoticeManagementPage: React.FC = () => {
       className="space-y-6 pb-12"
     >
       {/* 1. Breadcrumbs Header */}
-      <div className="flex justify-between items-center glass-panel p-4 shadow-sm select-none">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 glass-panel p-3.5 sm:p-4 shadow-sm select-none">
         <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
           <Home className="h-4.5 w-4.5 text-red-500" />
           <ChevronRight className="h-3 w-3" />
           <span className="text-gradient-primary">Notice Board</span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <Button
             variant="secondary"
             onClick={handleExport}

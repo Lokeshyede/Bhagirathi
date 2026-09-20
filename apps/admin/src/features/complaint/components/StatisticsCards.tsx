@@ -49,7 +49,7 @@ export const StatisticsCards: React.FC<StatisticsCardsProps> = ({ stats }) => {
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
       {cards.map((card) => (
         <div
           key={card.title}
@@ -57,7 +57,7 @@ export const StatisticsCards: React.FC<StatisticsCardsProps> = ({ stats }) => {
             bg-white dark:bg-gray-900
             border border-border dark:border-gray-800
             border-l-[3px] ${card.accentLeft}
-            rounded-card shadow-card p-4
+            rounded-card shadow-card p-3.5 sm:p-4
             hover:shadow-card-hover hover:-translate-y-0.5
             transition-all duration-200 cursor-default
           `}

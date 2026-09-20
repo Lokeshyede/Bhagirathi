@@ -125,6 +125,7 @@ export const DashboardLayout: React.FC = () => {
     toggleMobileDrawer,
     openSearch,
     closeSearch,
+    setIsMobileDrawerOpen,
   } = useLayout();
 
   const user = useAuthStore((state) => state.user);
@@ -134,6 +135,11 @@ export const DashboardLayout: React.FC = () => {
   const { isDarkMode, toggleTheme } = useThemeStore();
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Auto-close mobile drawer when location/route changes
+  React.useEffect(() => {
+    setIsMobileDrawerOpen(false);
+  }, [location.pathname, setIsMobileDrawerOpen]);
 
   const handleLogout = () => {
     logout();

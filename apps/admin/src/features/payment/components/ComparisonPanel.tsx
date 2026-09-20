@@ -34,22 +34,22 @@ function ComparisonRow({ field }: { field: ComparisonField }) {
   return (
     <div className={`grid grid-cols-[1fr_auto_1fr] gap-2 items-center px-3 py-2 rounded-lg ${rowBg}`}>
       {/* Tenant value */}
-      <div className="text-right">
+      <div className="text-right min-w-0">
         <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">{field.label}</p>
-        <p className={`text-sm font-medium ${field.match_status === "MISMATCH" ? "text-red-600 dark:text-red-400" : "text-gray-800 dark:text-gray-100"}`}>
+        <p className={`text-xs sm:text-sm font-medium break-all ${field.match_status === "MISMATCH" ? "text-red-600 dark:text-red-400" : "text-gray-800 dark:text-gray-100"}`}>
           {field.tenant_value ?? <span className="text-gray-400 italic">—</span>}
         </p>
       </div>
 
       {/* Match icon */}
-      <div className="flex justify-center">
+      <div className="flex justify-center shrink-0">
         <MatchBadge status={field.match_status} />
       </div>
 
       {/* Bank value */}
-      <div>
+      <div className="min-w-0">
         <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">&nbsp;</p>
-        <p className={`text-sm font-medium ${field.match_status === "MISMATCH" ? "text-red-600 dark:text-red-400" : "text-gray-800 dark:text-gray-100"}`}>
+        <p className={`text-xs sm:text-sm font-medium break-all ${field.match_status === "MISMATCH" ? "text-red-600 dark:text-red-400" : "text-gray-800 dark:text-gray-100"}`}>
           {field.bank_value ?? <span className="text-gray-400 italic">—</span>}
         </p>
       </div>

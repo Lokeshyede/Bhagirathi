@@ -209,7 +209,7 @@ const BillingDashboardPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#080b12] text-white">
-      <div className="max-w-screen-xl mx-auto px-6 py-8 space-y-8">
+      <div className="max-w-screen-xl mx-auto px-3 sm:px-6 py-4 sm:py-8 space-y-6 sm:space-y-8">
 
         {/* ── Banners ──────────────────────────────────── */}
         <AnimatePresence>
@@ -297,13 +297,13 @@ const BillingDashboardPage: React.FC = () => {
 
         {/* ── KPI Cards ────────────────────────────────── */}
         {dashLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="h-32 rounded-2xl bg-white/[0.03] animate-pulse" />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             <KpiCard
               label={`Total Bills — ${SHORT_MONTH[selectedMonth]} ${selectedYear}`}
               value={String(cur?.total_bills ?? 0)}

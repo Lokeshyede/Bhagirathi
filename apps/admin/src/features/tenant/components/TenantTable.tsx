@@ -87,7 +87,7 @@ export const TenantTable: React.FC<TenantTableProps> = ({
     <div className="glass-panel overflow-hidden border border-white/20 dark:border-white/5">
       {/* Table bulk operations actions display */}
       {selectedIds.size > 0 && (
-        <div className="bg-primary/5 dark:bg-red-950/10 border-b border-primary/20 dark:border-red-900/30 px-5 py-3.5 flex justify-between items-center text-xs font-bold text-primary animate-in fade-in select-none">
+        <div className="bg-primary/5 dark:bg-red-950/10 border-b border-primary/20 dark:border-red-900/30 px-4 sm:px-5 py-3 sm:py-3.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs font-bold text-primary animate-in fade-in select-none">
           <span>{selectedIds.size} tenant profile(s) selected</span>
           <div className="flex gap-2">
             <button

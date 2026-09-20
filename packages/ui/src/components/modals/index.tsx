@@ -50,13 +50,13 @@ export const Dialog: React.FC<DialogProps> = ({
             exit={{ opacity: 0, scale: 0.95, y: 12 }}
             transition={{ type: "spring", stiffness: 350, damping: 28 }}
             className={cn(
-              "bg-white dark:bg-gray-900 rounded-dialog shadow-dialog w-full max-w-md overflow-hidden flex flex-col border border-border dark:border-gray-800 z-10",
+              "bg-white dark:bg-gray-900 rounded-dialog shadow-dialog w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col border border-border dark:border-gray-800 z-10",
               className
             )}
           >
-            <div className="flex items-center justify-between p-5 border-b border-border dark:border-gray-800 select-none">
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border dark:border-gray-800 select-none">
               {title && (
-                <h3 className="text-base font-bold text-text-primary dark:text-white uppercase tracking-wider">
+                <h3 className="text-sm sm:text-base font-bold text-text-primary dark:text-white uppercase tracking-wider">
                   {title}
                 </h3>
               )}
@@ -68,7 +68,7 @@ export const Dialog: React.FC<DialogProps> = ({
               </button>
             </div>
 
-            <div className="p-6 overflow-y-auto flex-1">{children}</div>
+            <div className="p-4 sm:p-6 overflow-y-auto flex-1">{children}</div>
           </motion.div>
         </div>
       )}
@@ -292,9 +292,9 @@ export const FullscreenDialog: React.FC<FullscreenDialogProps> = ({
           )}
         >
           {/* Header */}
-          <div className="flex h-16 items-center justify-between px-6 border-b border-border dark:border-gray-800 flex-shrink-0 select-none">
+          <div className="flex h-14 sm:h-16 items-center justify-between px-4 sm:px-6 border-b border-border dark:border-gray-800 flex-shrink-0 select-none">
             {title ? (
-              <h3 className="text-base font-extrabold text-text-primary dark:text-white uppercase tracking-wider">
+              <h3 className="text-sm sm:text-base font-extrabold text-text-primary dark:text-white uppercase tracking-wider truncate">
                 {title}
               </h3>
             ) : <div />}
@@ -307,11 +307,11 @@ export const FullscreenDialog: React.FC<FullscreenDialogProps> = ({
           </div>
 
           {/* Body */}
-          <div className="flex-1 overflow-y-auto p-8">{children}</div>
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">{children}</div>
 
           {/* Footer */}
           {footerActions && (
-            <div className="h-16 px-6 border-t border-border dark:border-gray-800 bg-sidebar dark:bg-gray-900/50 flex items-center justify-end gap-3 flex-shrink-0">
+            <div className="min-h-14 sm:min-h-16 py-2.5 px-4 sm:px-6 border-t border-border dark:border-gray-800 bg-sidebar dark:bg-gray-900/50 flex flex-wrap items-center justify-end gap-2 sm:gap-3 flex-shrink-0">
               {footerActions}
             </div>
           )}

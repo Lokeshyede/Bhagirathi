@@ -41,7 +41,7 @@ export const ForgotPassword: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 p-5">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 p-3 sm:p-5">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -49,7 +49,7 @@ export const ForgotPassword: React.FC = () => {
         className="w-full max-w-sm"
       >
         {/* Brand */}
-        <div className="flex flex-col items-center mb-8">
+        <div className="flex flex-col items-center mb-6 sm:mb-8">
           <BhagirathiLogo size="lg" className="h-12 w-12 mb-3" />
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">Bhagirathi Admin</h1>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Hostel & PG Management</p>
@@ -59,7 +59,7 @@ export const ForgotPassword: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-center space-y-5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-8 shadow-lg"
+            className="text-center space-y-5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 sm:p-8 shadow-lg"
           >
             <div className="flex justify-center">
               <div className="h-16 w-16 bg-green-50 dark:bg-green-950/20 rounded-full flex items-center justify-center">
@@ -81,12 +81,12 @@ export const ForgotPassword: React.FC = () => {
             </Link>
           </motion.div>
         ) : (
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-8 shadow-lg">
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 sm:p-8 shadow-lg">
             <div className="mb-6">
-              <h2 className="text-2xl font-black text-gray-900 dark:text-white">
+              <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white">
                 Reset Password
               </h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
                 Enter your admin email and we'll send you a reset link.
               </p>
             </div>

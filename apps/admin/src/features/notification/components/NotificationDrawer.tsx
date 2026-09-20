@@ -63,16 +63,16 @@ export const NotificationDrawer: React.FC = () => {
         onClick={closeDrawer}
       />
 
-      <div className="absolute inset-y-0 right-0 pl-10 max-w-full flex">
+      <div className="absolute inset-y-0 right-0 pl-3 sm:pl-10 max-w-full flex">
         {/* Drawer Panel */}
         <div 
           ref={drawerRef}
           className="w-screen max-w-md bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 shadow-2xl flex flex-col animate-in slide-in-from-right duration-200"
         >
           {/* Drawer Header */}
-          <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-gray-50 dark:bg-gray-950/20">
+          <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-gray-50 dark:bg-gray-950/20">
             <div className="flex items-center gap-2">
-              <Bell className="h-5 w-5 text-red-650" />
+              <Bell className="h-5 w-5 text-red-650 shrink-0" />
               <h2 className="text-base font-bold text-gray-900 dark:text-white" id="slide-over-title">
                 Notifications
               </h2>
@@ -82,7 +82,7 @@ export const NotificationDrawer: React.FC = () => {
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               {unreadCount > 0 && (
                 <button
                   onClick={() => markAllAsRead.mutate()}
@@ -103,7 +103,7 @@ export const NotificationDrawer: React.FC = () => {
 
           {/* Drawer Scrollable Content */}
           <div 
-            className="flex-1 overflow-y-auto p-6 scrollbar-none space-y-4"
+            className="flex-1 overflow-y-auto p-4 sm:p-6 scrollbar-none space-y-4"
             onClick={(e) => {
               if ((e.target as HTMLElement).closest("a")) {
                 closeDrawer();

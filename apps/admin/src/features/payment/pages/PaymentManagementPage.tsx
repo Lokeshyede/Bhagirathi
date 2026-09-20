@@ -44,16 +44,16 @@ export const PaymentManagementPage: React.FC = () => {
             View room rent splits, utility shares, and pending payment obligations.
           </p>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
             onClick={() => navigate("/payments/cash-verification")}
-            className="h-9.5 px-4 flex items-center gap-1.5 font-bold cursor-pointer border border-emerald-500/20 bg-emerald-55/10 text-emerald-600 dark:text-emerald-400"
+            className="h-9.5 px-3 sm:px-4 flex items-center gap-1.5 font-bold cursor-pointer border border-emerald-500/20 bg-emerald-55/10 text-emerald-600 dark:text-emerald-400 text-xs"
           >
             <Coins className="h-4 w-4" />
             <span>Verify Cash Payments</span>
           </Button>
-          <Button variant="outline" onClick={handleRetryAll} className="h-9.5 px-4 flex items-center gap-1.5 font-bold cursor-pointer">
+          <Button variant="outline" onClick={handleRetryAll} className="h-9.5 px-3 sm:px-4 flex items-center gap-1.5 font-bold cursor-pointer text-xs">
             <RefreshCw className="h-4 w-4" />
             <span>Refresh Data</span>
           </Button>
@@ -61,7 +61,7 @@ export const PaymentManagementPage: React.FC = () => {
       </div>
 
       {/* Primary Tab Controls */}
-      <div className="flex items-center gap-1.5 p-1 bg-white dark:bg-gray-900 border border-border dark:border-gray-800 rounded-card shadow-card select-none">
+      <div className="flex items-center gap-1.5 p-1 bg-white dark:bg-gray-900 border border-border dark:border-gray-800 rounded-card shadow-card select-none overflow-x-auto scrollbar-none">
         <button
           onClick={() => setActiveTab("rooms")}
           className={`flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded text-xs font-bold uppercase tracking-wider transition cursor-pointer ${

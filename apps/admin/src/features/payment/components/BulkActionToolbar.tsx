@@ -35,11 +35,11 @@ export const BulkActionToolbar: React.FC<BulkActionToolbarProps> = ({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 32 }}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-1.5rem)]"
         >
-          <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-gray-900 dark:bg-gray-800 border border-gray-700 dark:border-gray-600 shadow-2xl shadow-black/40 backdrop-blur-xl">
+          <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-3 rounded-2xl bg-gray-900 dark:bg-gray-800 border border-gray-700 dark:border-gray-600 shadow-2xl shadow-black/40 backdrop-blur-xl overflow-x-auto scrollbar-none">
             {/* Selection count */}
-            <div className="flex items-center gap-2 pr-3 border-r border-gray-700 dark:border-gray-600">
+            <div className="flex items-center gap-2 pr-2.5 sm:pr-3 border-r border-gray-700 dark:border-gray-600 shrink-0">
               <span className="h-6 min-w-6 px-2 rounded-full bg-indigo-500 text-white text-xs font-bold flex items-center justify-center">
                 {selectedCount}
               </span>
@@ -54,10 +54,10 @@ export const BulkActionToolbar: React.FC<BulkActionToolbarProps> = ({
               whileTap={{ scale: 0.97 }}
               onClick={onVerify}
               disabled={isVerifying}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-green-500 hover:bg-green-400 text-white text-sm font-semibold transition-colors disabled:opacity-60"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-green-500 hover:bg-green-400 text-white text-xs sm:text-sm font-semibold transition-colors disabled:opacity-60 shrink-0"
             >
               <CheckCircle2 className="h-4 w-4" />
-              {isVerifying ? "Verifying…" : "Verify Selected"}
+              {isVerifying ? "Verifying…" : <><span>Verify</span><span className="hidden sm:inline">&nbsp;Selected</span></>}
             </motion.button>
 
             {/* Reject Selected */}
@@ -66,10 +66,10 @@ export const BulkActionToolbar: React.FC<BulkActionToolbarProps> = ({
               whileTap={{ scale: 0.97 }}
               onClick={onReject}
               disabled={isRejecting}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-500 hover:bg-red-400 text-white text-sm font-semibold transition-colors disabled:opacity-60"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-red-500 hover:bg-red-400 text-white text-xs sm:text-sm font-semibold transition-colors disabled:opacity-60 shrink-0"
             >
               <XCircle className="h-4 w-4" />
-              {isRejecting ? "Rejecting…" : "Reject Selected"}
+              {isRejecting ? "Rejecting…" : <><span>Reject</span><span className="hidden sm:inline">&nbsp;Selected</span></>}
             </motion.button>
 
             {/* Move to Manual Review */}

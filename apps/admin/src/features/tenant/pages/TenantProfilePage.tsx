@@ -163,7 +163,7 @@ export const TenantProfilePage: React.FC = () => {
             <span className="font-extrabold text-primary">{tenant.full_name}</span>
           </div>
 
-          <div className="flex items-center gap-2 text-xs">
+          <div className="flex flex-wrap items-center gap-2 text-xs">
             <Button
               variant="outline"
               size="sm"
@@ -197,7 +197,7 @@ export const TenantProfilePage: React.FC = () => {
 
         {/* Profile Title Banner */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3 border-t border-gray-150 dark:border-gray-800">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
             {tenant.photo_url ? (
               <img
                 src={tenant.photo_url}
@@ -237,7 +237,7 @@ export const TenantProfilePage: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {tenant.room_id ? (
               <Button
                 variant="outline"

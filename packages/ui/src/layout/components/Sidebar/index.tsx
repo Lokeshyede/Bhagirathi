@@ -210,7 +210,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "tween", duration: 0.22, ease: "easeInOut" }}
-              className="relative w-64 h-full flex flex-col z-10"
+              className="relative w-64 max-w-[calc(100vw-3rem)] h-full flex flex-col z-10"
             >
               {sidebarContent(true)}
             </motion.div>

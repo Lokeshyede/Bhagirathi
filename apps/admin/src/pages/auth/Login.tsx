@@ -104,32 +104,32 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[#F8FAFC] dark:bg-zinc-950 transition-colors">
+    <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 bg-[#F8FAFC] dark:bg-zinc-950 transition-colors">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="w-full max-w-[420px] bg-white dark:bg-zinc-900 border border-[#E2E8F0] dark:border-zinc-800 rounded-3xl p-8 sm:p-10 shadow-xs"
+        className="w-full max-w-[420px] bg-white dark:bg-zinc-900 border border-[#E2E8F0] dark:border-zinc-800 rounded-3xl p-5 sm:p-8 md:p-10 shadow-xs"
       >
         {/* Branding header */}
         <div className="flex flex-col items-center select-none text-center">
           {/* Logo Container */}
           <div className="mb-4">
-            <BhagirathiLogo size="xl" className="h-20 w-20" />
+            <BhagirathiLogo size="xl" className="h-16 w-16 sm:h-20 sm:w-20" />
           </div>
           
           {/* Brand Name */}
-          <h1 className="text-xl sm:text-22px font-black text-[#111827] dark:text-white uppercase tracking-wider leading-none">
+          <h1 className="text-lg sm:text-xl md:text-[22px] font-black text-[#111827] dark:text-white uppercase tracking-wider leading-none">
             Bhagirathi Hostel &amp; PG
           </h1>
           
           {/* Portal Label */}
-          <span className="text-[11px] font-black text-[#64748B] dark:text-zinc-400 uppercase tracking-widest mt-2.5">
+          <span className="text-[10px] sm:text-[11px] font-black text-[#64748B] dark:text-zinc-400 uppercase tracking-widest mt-2 sm:mt-2.5">
             Admin Portal
           </span>
           
           {/* Welcome Text */}
-          <h2 className="text-24px sm:text-26px font-black text-[#111827] dark:text-white mt-4 tracking-tight leading-tight select-none">
+          <h2 className="text-xl sm:text-2xl md:text-[26px] font-black text-[#111827] dark:text-white mt-3 sm:mt-4 tracking-tight leading-tight select-none">
             Welcome Back
           </h2>
         </div>

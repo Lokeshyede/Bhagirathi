@@ -117,9 +117,9 @@ const ReceiptHistoryPage: React.FC = () => {
       </AnimatePresence>
 
       {/* Filters bar */}
-      <div className="flex flex-wrap items-center gap-3 bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
+      <div className="flex flex-wrap items-center gap-3 bg-white dark:bg-gray-900 p-3 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
         {/* Search */}
-        <div className="relative flex-1 min-w-64">
+        <div className="relative w-full sm:w-auto flex-1 min-w-0 sm:min-w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
             value={search}

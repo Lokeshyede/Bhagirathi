@@ -81,7 +81,7 @@ export const RentAlertPopup: React.FC = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: -12 }}
             transition={{ type: "spring", damping: 24, stiffness: 280 }}
-            className="fixed top-[10%] left-1/2 -translate-x-1/2 z-[9001] w-full max-w-md"
+            className="fixed top-[6%] sm:top-[10%] left-1/2 -translate-x-1/2 z-[9001] w-[calc(100%-1.5rem)] max-w-md"
           >
             <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-border dark:border-gray-700 overflow-hidden">
 
@@ -89,7 +89,7 @@ export const RentAlertPopup: React.FC = () => {
               <div className="h-1.5 w-full bg-gradient-to-r from-amber-400 via-orange-500 to-red-500" />
 
               {/* Content */}
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 {/* Title row */}
                 <div className="flex items-start justify-between mb-5">
                   <div className="flex items-center gap-3">

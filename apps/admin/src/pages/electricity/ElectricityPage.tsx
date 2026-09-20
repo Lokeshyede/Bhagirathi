@@ -267,10 +267,10 @@ export const ElectricityPage: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-border select-none">
+      <div className="flex border-b border-border select-none overflow-x-auto scrollbar-none">
         <button
           onClick={() => setActiveTab("dashboard")}
-          className={`px-5 py-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+          className={`px-5 py-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
             activeTab === "dashboard" ? "border-primary text-primary" : "border-transparent text-muted hover:text-secondaryText"
           }`}
         >
@@ -430,7 +430,7 @@ export const ElectricityPage: React.FC = () => {
             <div className="glass-panel p-5 space-y-4 select-none">
               <h3 className="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wider">Monthly Billing Revenue Collection Trend</h3>
               {stats?.monthly_revenue && stats.monthly_revenue.length > 0 ? (
-                <div className="flex items-end justify-around h-48 pt-6 border-b border-gray-100 dark:border-gray-800">
+                <div className="flex items-end justify-around h-48 pt-6 border-b border-gray-100 dark:border-gray-800 overflow-x-auto scrollbar-none min-w-full">
                   {stats.monthly_revenue.map((item, idx) => {
                     const maxAmt = Math.max(...stats.monthly_revenue.map(r => r.amount), 1);
                     const heightPercent = `${(item.amount / maxAmt) * 80 + 10}%`;
@@ -832,7 +832,7 @@ export const ElectricityPage: React.FC = () => {
       {selectedBill && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 animate-in fade-in duration-150">
           <div className="absolute inset-0" onClick={() => setSelectedBill(null)} />
-          <div className="relative max-w-md w-full bg-white dark:bg-gray-900 border border-border dark:border-gray-800 rounded-card overflow-hidden shadow-card flex flex-col z-10 p-5 space-y-4">
+          <div className="relative max-w-md w-full bg-white dark:bg-gray-900 border border-border dark:border-gray-800 rounded-card overflow-hidden shadow-card flex flex-col z-10 p-5 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center select-none border-b border-gray-150 dark:border-gray-850 pb-3">
               <h3 className="text-xs font-black text-primaryText dark:text-white uppercase tracking-wider flex items-center gap-1.5">
                 <Zap className="h-4.5 w-4.5 text-amber-550 fill-amber-550" /> Electricity Invoice Detail
@@ -914,7 +914,7 @@ export const ElectricityPage: React.FC = () => {
       {reviewBill && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 animate-in fade-in duration-150">
           <div className="absolute inset-0" onClick={() => setReviewBill(null)} />
-          <div className="relative max-w-2xl w-full bg-white dark:bg-gray-900 border border-border dark:border-gray-800 rounded-card overflow-hidden shadow-card flex flex-col z-10 p-5 space-y-4">
+          <div className="relative max-w-2xl w-full bg-white dark:bg-gray-900 border border-border dark:border-gray-800 rounded-card overflow-hidden shadow-card flex flex-col z-10 p-5 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center select-none border-b border-gray-150 dark:border-gray-850 pb-3">
               <h3 className="text-xs font-black text-primaryText dark:text-white uppercase tracking-wider flex items-center gap-1.5">
                 <ShieldCheck className="h-4.5 w-4.5 text-primary" /> Review Submitted Transaction Receipt
@@ -924,7 +924,7 @@ export const ElectricityPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Left Details */}
               <div className="space-y-3.5 text-xs select-none">
                 <div>
