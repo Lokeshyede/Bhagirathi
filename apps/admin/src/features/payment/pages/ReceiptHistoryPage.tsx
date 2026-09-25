@@ -45,12 +45,38 @@ const ReceiptHistoryPage: React.FC = () => {
 
   const handleDownload = async (id: string) => {
     try {
-      const res = await apiClient.get(`/api/v1/receipts/${id}/download`);
-      if (res.data.pdf_url) {
-        window.open(res.data.pdf_url, "_blank");
-      }
+      const receiptItem = receipts.find((r) => r.id === id);
+      const receiptNumber = receiptItem?.receipt_number;
+
+      const res = await apiClient.get(
+        `/api/v1/receipts/${id}/download`,
+        {
+          responseType: "blob",
+        }
+      );
+
+      const blob = new Blob([res.data], {
+        type: "application/pdf",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        receiptNumber
+          ? `${receiptNumber}.pdf`
+          : `receipt-${id.slice(0, 8)}.pdf`
+      );
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
     } catch (e) {
-      setBanner({ message: "Failed to trigger download.", type: "error" });
+      setBanner({ message: "Failed to download receipt.", type: "error" });
     }
   };
 

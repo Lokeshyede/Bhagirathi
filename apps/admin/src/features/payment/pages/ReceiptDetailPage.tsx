@@ -13,10 +13,35 @@ const ReceiptDetailPage: React.FC = () => {
   const { data: receipt, isLoading } = useReceiptById(receiptId || null);
 
   const handleDownload = async () => {
-    if (!receiptId || !receipt?.pdf_url) return;
+    if (!receiptId) return;
     try {
-      const res = await apiClient.get(`/api/v1/receipts/${receiptId}/download`);
-      window.open(res.data.pdf_url, "_blank");
+      const res = await apiClient.get(
+        `/api/v1/receipts/${receiptId}/download`,
+        {
+          responseType: "blob",
+        }
+      );
+
+      const blob = new Blob([res.data], {
+        type: "application/pdf",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        receipt?.receipt_number
+          ? `${receipt.receipt_number}.pdf`
+          : `receipt-${receiptId.slice(0, 8)}.pdf`
+      );
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
     } catch (e) {
       alert("Failed to download receipt.");
     }
