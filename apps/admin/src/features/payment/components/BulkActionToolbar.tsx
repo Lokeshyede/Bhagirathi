@@ -43,8 +43,8 @@ export const BulkActionToolbar: React.FC<BulkActionToolbarProps> = ({
               <span className="h-6 min-w-6 px-2 rounded-full bg-indigo-500 text-white text-xs font-bold flex items-center justify-center">
                 {selectedCount}
               </span>
-              <span className="text-sm text-gray-300 font-medium hidden sm:block">
-                {selectedCount === 1 ? "payment" : "payments"} selected
+              <span className="text-xs text-gray-300 font-medium whitespace-nowrap">
+                {selectedCount === 1 ? "pmt" : "pmts"} selected
               </span>
             </div>
 
@@ -57,7 +57,7 @@ export const BulkActionToolbar: React.FC<BulkActionToolbarProps> = ({
               className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-green-500 hover:bg-green-400 text-white text-xs sm:text-sm font-semibold transition-colors disabled:opacity-60 shrink-0"
             >
               <CheckCircle2 className="h-4 w-4" />
-              {isVerifying ? "Verifying…" : <><span>Verify</span><span className="hidden sm:inline">&nbsp;Selected</span></>}
+              <span className="whitespace-nowrap">{isVerifying ? "Verifying…" : "Verify"}</span>
             </motion.button>
 
             {/* Reject Selected */}
@@ -69,7 +69,7 @@ export const BulkActionToolbar: React.FC<BulkActionToolbarProps> = ({
               className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-red-500 hover:bg-red-400 text-white text-xs sm:text-sm font-semibold transition-colors disabled:opacity-60 shrink-0"
             >
               <XCircle className="h-4 w-4" />
-              {isRejecting ? "Rejecting…" : <><span>Reject</span><span className="hidden sm:inline">&nbsp;Selected</span></>}
+              <span className="whitespace-nowrap">{isRejecting ? "Rejecting…" : "Reject"}</span>
             </motion.button>
 
             {/* Move to Manual Review */}
@@ -78,10 +78,10 @@ export const BulkActionToolbar: React.FC<BulkActionToolbarProps> = ({
               whileTap={{ scale: 0.97 }}
               onClick={onManualReview}
               disabled={isMoving}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold transition-colors disabled:opacity-60 hidden sm:flex"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-white text-xs font-semibold transition-colors disabled:opacity-60 shrink-0"
             >
               <Clock className="h-4 w-4" />
-              {isMoving ? "Moving…" : "Manual Review"}
+              <span className="whitespace-nowrap">{isMoving ? "Moving…" : "Manual"}</span>
             </motion.button>
 
             {/* Export */}
@@ -89,10 +89,10 @@ export const BulkActionToolbar: React.FC<BulkActionToolbarProps> = ({
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={onExport}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-600 text-gray-300 hover:text-white hover:border-gray-500 text-sm font-medium transition-colors hidden md:flex"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-gray-600 text-gray-300 hover:text-white hover:border-gray-500 text-xs font-medium transition-colors shrink-0"
             >
               <Download className="h-4 w-4" />
-              Export
+              <span className="whitespace-nowrap">Export</span>
             </motion.button>
 
             {/* Deselect */}

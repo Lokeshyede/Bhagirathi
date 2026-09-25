@@ -427,6 +427,12 @@ export const ArchivedTenantsPage: React.FC = () => {
                               ARCHIVED
                             </span>
                           </div>
+                          {/* Mobile-only phone since Contact column is hidden on sm */}
+                          {tenant.phone && (
+                            <span className="sm:hidden text-[10px] text-slate-500 dark:text-slate-400 font-semibold block mt-0.5">
+                              📱 {tenant.phone}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </td>

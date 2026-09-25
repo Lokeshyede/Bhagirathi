@@ -225,6 +225,12 @@ export const TenantTable: React.FC<TenantTableProps> = ({
                         <span className="text-[10px] text-muted dark:text-gray-500 font-mono tracking-wider">
                           {t.tenant_id}
                         </span>
+                        {/* Mobile-only: show phone since Contact column is hidden */}
+                        {t.mobile && (
+                          <span className="sm:hidden text-[10px] text-secondaryText dark:text-gray-400 font-semibold block mt-0.5">
+                            📱 {t.mobile}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </td>

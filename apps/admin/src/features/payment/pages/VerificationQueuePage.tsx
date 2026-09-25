@@ -389,6 +389,20 @@ const VerificationQueuePage: React.FC<{ initialStatus?: string }> = ({ initialSt
                         )}
                       </div>
                       <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">{payment.hostel_name}</p>
+                      {/* Mobile-only: show room and UTR since those columns are hidden */}
+                      <div className="md:hidden mt-0.5 space-y-0.5">
+                        {payment.room_number && (
+                          <p className="text-[10px] text-gray-500 dark:text-gray-400">
+                            Room {payment.room_number}
+                            {payment.building_name && <span className="text-gray-400"> · {payment.building_name}</span>}
+                          </p>
+                        )}
+                        {payment.submitted_utr && (
+                          <p className="text-[10px] font-mono text-gray-600 dark:text-gray-300">
+                            UTR: {payment.submitted_utr}
+                          </p>
+                        )}
+                      </div>
                     </td>
 
                     {/* Room */}

@@ -410,8 +410,53 @@ export const AllocationWizard: React.FC<AllocationWizardProps> = ({
       title="Intelligent Allocation Wizard"
       className="max-w-3xl"
     >
-      <div className="flex gap-4 select-none">
-        {/* Sidebar steps tracker */}
+      <div className="select-none">
+        {/* Sidebar steps tracker — full version on md+, compact dots on mobile */}
+        {/* Mobile compact step indicator (above content) */}
+        <div className="md:hidden mb-3">
+          <div className="flex items-center justify-between mb-1.5">
+            {[
+              "Personal",
+              "Guardian",
+              "Docs",
+              "Room",
+              "Login",
+              "Contract",
+            ].map((label, idx) => {
+              const stepNum = idx + 1;
+              const isCompleted = step > stepNum;
+              const isActive = step === stepNum;
+              return (
+                <div key={stepNum} className="flex flex-col items-center gap-0.5 flex-1">
+                  <div
+                    className={`h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-black border ${
+                      isActive
+                        ? "border-indigo-500 bg-indigo-500 text-white"
+                        : isCompleted
+                        ? "border-green-500 bg-green-500 text-white"
+                        : "border-gray-300 dark:border-gray-700 text-gray-400"
+                    }`}
+                  >
+                    {isCompleted ? "✓" : stepNum}
+                  </div>
+                  {isActive && (
+                    <span className="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 text-center leading-tight">{label}</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          <div className="h-1 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-indigo-500 rounded-full transition-all"
+              style={{ width: `${((step - 1) / 5) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Main flex row: sidebar + form */}
+        <div className="flex gap-4">
+        {/* Full sidebar on md+ */}
         <div className="w-1/4 border-r pr-4 hidden md:block space-y-4 font-semibold text-xs border-gray-100 dark:border-gray-800">
           {[
             "Personal Information",
@@ -968,6 +1013,7 @@ export const AllocationWizard: React.FC<AllocationWizardProps> = ({
               )}
             </div>
           </form>
+        </div>
         </div>
       </div>
     </Modal>

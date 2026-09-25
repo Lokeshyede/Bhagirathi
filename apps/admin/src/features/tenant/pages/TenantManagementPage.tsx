@@ -292,7 +292,7 @@ export const TenantManagementPage: React.FC = () => {
           </div>
         }
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               variant="secondary"
               onClick={() => navigate("/tenants/archived")}
@@ -335,7 +335,7 @@ export const TenantManagementPage: React.FC = () => {
               title="Onboard Tenant"
             >
               <Plus className="h-4 w-4" />
-              <span className="hidden sm:inline">Onboard Tenant</span>
+              <span>Onboard Tenant</span>
             </Button>
           </div>
         }

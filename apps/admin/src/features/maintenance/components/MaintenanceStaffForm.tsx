@@ -167,7 +167,55 @@ export const MaintenanceStaffForm: React.FC<MaintenanceStaffFormProps> = ({
       title={initialData ? "Edit Staff Details" : "Register Maintenance Staff"}
       className="max-w-2xl"
     >
-      <div className="flex gap-4 select-none">
+      <div className="select-none">
+        {/* Mobile compact step indicator (above content on small screens) */}
+        {(() => {
+          const steps = [
+            "Staff Details",
+            "Buildings",
+            ...(!initialData ? ["Login"] : []),
+            "Review"
+          ];
+          const totalSteps = steps.length;
+          return (
+            <div className="md:hidden mb-3">
+              <div className="flex items-center justify-between mb-1.5">
+                {steps.map((label, idx) => {
+                  const stepNum = idx + 1;
+                  const isCompleted = step > stepNum;
+                  const isActive = step === stepNum;
+                  return (
+                    <div key={stepNum} className="flex flex-col items-center gap-0.5 flex-1">
+                      <div
+                        className={`h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-black border ${
+                          isActive
+                            ? "border-red-500 bg-red-500 text-white"
+                            : isCompleted
+                            ? "border-green-500 bg-green-500 text-white"
+                            : "border-gray-300 dark:border-gray-700 text-gray-400"
+                        }`}
+                      >
+                        {isCompleted ? "✓" : stepNum}
+                      </div>
+                      {isActive && (
+                        <span className="text-[9px] font-bold text-red-600 dark:text-red-400 text-center leading-tight">{label}</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="h-1 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-red-500 rounded-full transition-all"
+                  style={{ width: `${((step - 1) / (totalSteps - 1)) * 100}%` }}
+                />
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Main flex row: sidebar (md+) + form */}
+        <div className="flex gap-4">
         <div className="w-1/4 border-r pr-4 hidden md:block space-y-4 font-bold text-[10px] uppercase tracking-wider border-gray-100 dark:border-gray-800">
           {[
             "Staff Details",
@@ -458,6 +506,7 @@ export const MaintenanceStaffForm: React.FC<MaintenanceStaffFormProps> = ({
               )}
             </div>
           </form>
+        </div>
         </div>
       </div>
     </Modal>
