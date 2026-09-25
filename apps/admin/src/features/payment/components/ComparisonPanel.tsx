@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, CheckCircle2, XCircle, AlertCircle, ScanLine, Brain } from "lucide-react";
+import { X, CheckCircle2, XCircle, AlertCircle, ScanLine, Brain, Info } from "lucide-react";
 import { useComparisonPanel } from "../hooks/useVerification";
 import { ConfidenceMeter } from "./ConfidenceMeter";
 import type { ComparisonField } from "../hooks/useVerification";
@@ -160,25 +160,69 @@ export const ComparisonPanel: React.FC<ComparisonPanelProps> = ({ paymentId, onC
                     </div>
                   )}
 
-                  {/* OCR Result */}
+                  {/* Screenshot Verification / OCR Evidence (Additional Evidence Source) */}
                   {data.ocr_result && (
-                    <div className="p-4 rounded-xl bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900">
-                      <div className="flex items-center gap-2 mb-3">
-                        <ScanLine className="h-4 w-4 text-purple-500" />
-                        <p className="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wider">OCR Extracted Data</p>
+                    <div className="p-4 rounded-xl bg-purple-50/70 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <ScanLine className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                          <p className="text-xs font-semibold text-purple-900 dark:text-purple-300 uppercase tracking-wider">
+                            Screenshot Verification
+                          </p>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                            Additional Evidence
+                          </span>
+                        </div>
+                        {data.ocr_result.comparison_with_bank?.evidence_status === "CONFIRMED" && (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/40 px-2 py-0.5 rounded-full border border-green-200 dark:border-green-800">
+                            <CheckCircle2 className="h-3.5 w-3.5" /> Confirmed vs Statement
+                          </span>
+                        )}
                       </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
+
+                      {/* Evidence Summary if available */}
+                      {data.ocr_result.comparison_with_bank?.evidence_summary && (
+                        <p className="text-xs text-purple-800 dark:text-purple-300 bg-white/60 dark:bg-gray-800/60 p-2.5 rounded-lg border border-purple-100 dark:border-purple-800/60">
+                          {data.ocr_result.comparison_with_bank.evidence_summary}
+                        </p>
+                      )}
+
+                      {/* Extracted fields grid */}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
                         {[
-                          ["UTR", data.ocr_result.utr],
-                          ["Amount", data.ocr_result.amount ? `₹${Number(data.ocr_result.amount).toLocaleString("en-IN")}` : null],
-                          ["Date", data.ocr_result.date],
-                          ["Sender", data.ocr_result.sender_name],
-                        ].map(([label, val]) => (
-                          <div key={label as string}>
-                            <span className="text-gray-500">{label}: </span>
-                            <span className="font-medium text-gray-800 dark:text-gray-200">{val ?? "—"}</span>
+                          { label: "UTR", val: data.ocr_result.utr, match: data.ocr_result.comparison_with_bank?.fields?.utr?.match_status },
+                          { label: "Amount", val: data.ocr_result.amount ? `₹${Number(data.ocr_result.amount).toLocaleString("en-IN")}` : null, match: data.ocr_result.comparison_with_bank?.fields?.amount?.match_status },
+                          { label: "Date", val: data.ocr_result.date, match: data.ocr_result.comparison_with_bank?.fields?.date?.match_status },
+                          { label: "Time", val: data.ocr_result.time, match: data.ocr_result.comparison_with_bank?.fields?.time?.match_status },
+                          { label: "Receiver", val: data.ocr_result.receiver_upi || data.ocr_result.receiver_name, match: data.ocr_result.comparison_with_bank?.fields?.receiver?.match_status },
+                          { label: "Reference", val: data.ocr_result.reference_number || data.ocr_result.transaction_id, match: data.ocr_result.comparison_with_bank?.fields?.reference?.match_status },
+                        ].map((item, idx) => (
+                          <div key={idx} className="bg-white/70 dark:bg-gray-800/70 p-2 rounded-lg border border-purple-100 dark:border-purple-900/50 flex flex-col justify-between">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">{item.label}</span>
+                              {item.match === "MATCHED" && (
+                                <span className="text-[10px] text-green-600 dark:text-green-400 font-semibold flex items-center gap-0.5">
+                                  <CheckCircle2 className="h-3 w-3" /> Matched
+                                </span>
+                              )}
+                              {item.match === "MISMATCH" && (
+                                <span className="text-[10px] text-red-500 font-semibold flex items-center gap-0.5">
+                                  <XCircle className="h-3 w-3" /> Mismatch
+                                </span>
+                              )}
+                            </div>
+                            <span className="font-semibold text-gray-800 dark:text-gray-200 break-all text-xs">
+                              {item.val ?? <span className="text-gray-400 font-normal italic">—</span>}
+                            </span>
                           </div>
                         ))}
+                      </div>
+
+                      <div className="flex items-start gap-1.5 text-[11px] text-purple-700/80 dark:text-purple-300/80 pt-1">
+                        <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                        <span>
+                          Both UTR-based bank statement verification and screenshot verification coexist. Missing or unread screenshot fields do not fail verification.
+                        </span>
                       </div>
                     </div>
                   )}
