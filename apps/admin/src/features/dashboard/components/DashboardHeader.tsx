@@ -42,42 +42,42 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ occupancyRate 
   const hostelName = "Bhagirathi Hostel & PG";
 
   return (
-    <div className={`relative overflow-hidden bg-gradient-to-r ${greetingGrad} border border-border dark:border-gray-800 rounded-card p-4 sm:p-6 shadow-card mb-4 sm:mb-6`}>
+    <div className={`relative overflow-hidden bg-gradient-to-r ${greetingGrad} border border-border dark:border-gray-800 rounded-card p-4 sm:p-6 shadow-card mb-4 sm:mb-6 w-full`}>
       {/* Decorative background orbs */}
       <div className="absolute -top-8 -right-8 h-40 w-40 rounded-full bg-primary/4 dark:bg-primary/8 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-4 right-20 h-24 w-24 rounded-full bg-warning/6 dark:bg-warning/10 blur-2xl pointer-events-none" />
 
-      <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+      <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 w-full">
         {/* Welcome Greeting & Summary */}
-        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-          <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-icon bg-white dark:bg-gray-900 border border-border dark:border-gray-800 shadow-card flex items-center justify-center flex-shrink-0">
+        <div className="flex items-start gap-3 sm:gap-4 min-w-0 flex-1 w-full">
+          <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-icon bg-white dark:bg-gray-900 border border-border dark:border-gray-800 shadow-card flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
             {greetingIcon}
           </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 mb-1 select-none">
-              <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-warning flex-shrink-0" />
-              <span className="text-[10px] font-bold text-secondaryText dark:text-gray-400 uppercase tracking-widest truncate">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 sm:gap-2 mb-1 select-none">
+              <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-warning shrink-0" />
+              <span className="text-[10px] font-bold text-secondaryText dark:text-gray-400 uppercase tracking-wide sm:tracking-widest whitespace-normal break-words">
                 {hostelName}
               </span>
             </div>
-            <h1 className="text-lg sm:text-xl md:text-2xl font-black text-primaryText dark:text-white leading-tight truncate">
-              {greetingText}, <span className="text-primary">{firstName}</span>
+            <h1 className="text-base sm:text-xl md:text-2xl font-black text-primaryText dark:text-white leading-snug sm:leading-tight whitespace-normal break-words">
+              {greetingText}, <span className="text-primary break-words">{firstName}</span>
             </h1>
-            <p className="text-[11px] sm:text-xs font-semibold text-secondaryText dark:text-gray-400 mt-1">
+            <p className="text-[11px] sm:text-xs font-semibold text-secondaryText dark:text-gray-400 mt-1 whitespace-normal break-words">
               Running at <span className="text-primary font-bold">{occupancyRate}% occupancy</span> today.
             </p>
           </div>
         </div>
 
         {/* Live Clock & Date */}
-        <div className="flex flex-row sm:flex-col items-center sm:items-end gap-3 sm:gap-0.5 ml-[52px] sm:ml-0">
-          <div className="text-lg sm:text-xl font-black text-primaryText dark:text-white tabular-nums tracking-tight">
+        <div className="flex flex-wrap items-center sm:items-end sm:flex-col gap-x-3 gap-y-0.5 sm:gap-0.5 ml-[52px] sm:ml-0 shrink-0">
+          <div className="text-base sm:text-xl font-black text-primaryText dark:text-white tabular-nums tracking-tight shrink-0">
             {formattedTime}
           </div>
           <div className="hidden sm:block text-xs text-secondaryText dark:text-gray-400 font-medium">
             {formattedDate}
           </div>
-          <div className="flex items-center gap-1.5 sm:mt-1 select-none">
+          <div className="flex items-center gap-1.5 sm:mt-1 select-none shrink-0">
             <span className="status-dot-active" />
             <span className="text-[10px] text-success font-semibold">Online</span>
           </div>
