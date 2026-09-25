@@ -247,9 +247,9 @@ export const ElectricityPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex justify-between items-center select-none">
-        <div>
+      {/* Page Header — FIX: flex-wrap so title and Refresh button stack at 320px */}
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 select-none">
+        <div className="min-w-0">
           <h1 className="text-lg font-black text-primaryText dark:text-white leading-tight uppercase tracking-wider">Electricity Management</h1>
           <p className="text-[10px] text-muted font-bold uppercase tracking-wider mt-0.5">Generate, audit, verify and reconcile PG electricity billing</p>
         </div>
@@ -260,17 +260,17 @@ export const ElectricityPage: React.FC = () => {
             refetchPending();
             refetchHistoryBills();
           }}
-          className="flex items-center gap-1 text-[9px] font-black uppercase tracking-wider text-muted hover:text-primary cursor-pointer border border-border bg-white dark:bg-gray-900 px-3 py-1.5 rounded transition"
+          className="shrink-0 flex items-center gap-1 text-[9px] font-black uppercase tracking-wider text-muted hover:text-primary cursor-pointer border border-border bg-white dark:bg-gray-900 px-3 py-1.5 rounded transition"
         >
           <RefreshCw className={`h-3 w-3 ${fetchingStats || fetchingBills || fetchingPending || fetchingHistoryBills ? "animate-spin" : ""}`} /> Refresh
         </button>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs — FIX: all tabs now shrink-0 + whitespace-nowrap + px-3 sm:px-5 so 5 tabs fit at 320px */}
       <div className="flex border-b border-border select-none overflow-x-auto scrollbar-none">
         <button
           onClick={() => setActiveTab("dashboard")}
-          className={`px-5 py-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+          className={`px-3 sm:px-5 py-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-1.5 shrink-0 whitespace-nowrap ${
             activeTab === "dashboard" ? "border-primary text-primary" : "border-transparent text-muted hover:text-secondaryText"
           }`}
         >
@@ -278,7 +278,7 @@ export const ElectricityPage: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab("history")}
-          className={`px-5 py-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+          className={`px-3 sm:px-5 py-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-1.5 shrink-0 whitespace-nowrap ${
             activeTab === "history" ? "border-primary text-primary" : "border-transparent text-muted hover:text-secondaryText"
           }`}
         >
@@ -286,7 +286,7 @@ export const ElectricityPage: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab("ledger")}
-          className={`px-5 py-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+          className={`px-3 sm:px-5 py-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-1.5 shrink-0 whitespace-nowrap ${
             activeTab === "ledger" ? "border-primary text-primary" : "border-transparent text-muted hover:text-secondaryText"
           }`}
         >
@@ -294,7 +294,7 @@ export const ElectricityPage: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab("verification")}
-          className={`px-5 py-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+          className={`px-3 sm:px-5 py-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-1.5 shrink-0 whitespace-nowrap ${
             activeTab === "verification" ? "border-primary text-primary" : "border-transparent text-muted hover:text-secondaryText"
           }`}
         >
@@ -302,7 +302,7 @@ export const ElectricityPage: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab("reports")}
-          className={`px-5 py-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+          className={`px-3 sm:px-5 py-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-1.5 shrink-0 whitespace-nowrap ${
             activeTab === "reports" ? "border-primary text-primary" : "border-transparent text-muted hover:text-secondaryText"
           }`}
         >
@@ -426,29 +426,33 @@ export const ElectricityPage: React.FC = () => {
               </div>
             )}
 
-            {/* Monthly trends trend visualizer */}
-            <div className="glass-panel p-5 space-y-4 select-none">
+            {/* Monthly Billing Trend
+                FIX: proper overflow-x-auto wrapper so chart can scroll without causing page overflow.
+                     Outer panel is overflow-hidden; the inner scrollable div contains the bars. */}
+            <div className="glass-panel p-5 space-y-4 select-none overflow-hidden">
               <h3 className="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wider">Monthly Billing Revenue Collection Trend</h3>
               {stats?.monthly_revenue && stats.monthly_revenue.length > 0 ? (
-                <div className="flex items-end justify-around h-48 pt-6 border-b border-gray-100 dark:border-gray-800 overflow-x-auto scrollbar-none min-w-full">
-                  {stats.monthly_revenue.map((item, idx) => {
-                    const maxAmt = Math.max(...stats.monthly_revenue.map(r => r.amount), 1);
-                    const heightPercent = `${(item.amount / maxAmt) * 80 + 10}%`;
-                    return (
-                      <div key={idx} className="flex flex-col items-center group w-12">
-                        <span className="text-[8px] font-bold font-mono text-muted mb-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          ₹{item.amount.toLocaleString()}
-                        </span>
-                        <div
-                          style={{ height: heightPercent }}
-                          className="w-8 bg-gradient-to-t from-primary/50 to-primary rounded-t transition-all hover:scale-105"
-                        />
-                        <span className="text-[9px] font-bold text-secondaryText dark:text-gray-300 mt-2 block">
-                          {getMonthName(item.month)} '{String(item.year).substring(2)}
-                        </span>
-                      </div>
-                    );
-                  })}
+                <div className="w-full overflow-x-auto scrollbar-none">
+                  <div className="flex items-end justify-around h-48 pt-6 border-b border-gray-100 dark:border-gray-800 min-w-[480px]">
+                    {stats.monthly_revenue.map((item, idx) => {
+                      const maxAmt = Math.max(...stats.monthly_revenue.map(r => r.amount), 1);
+                      const heightPercent = `${(item.amount / maxAmt) * 80 + 10}%`;
+                      return (
+                        <div key={idx} className="flex flex-col items-center group w-10">
+                          <span className="text-[8px] font-bold font-mono text-muted mb-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                            ₹{item.amount.toLocaleString()}
+                          </span>
+                          <div
+                            style={{ height: heightPercent }}
+                            className="w-7 bg-gradient-to-t from-primary/50 to-primary rounded-t transition-all hover:scale-105"
+                          />
+                          <span className="text-[9px] font-bold text-secondaryText dark:text-gray-300 mt-2 block whitespace-nowrap">
+                            {getMonthName(item.month)} '{String(item.year).substring(2)}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               ) : (
                 <div className="h-48 flex items-center justify-center text-xs text-muted font-semibold">
@@ -461,9 +465,10 @@ export const ElectricityPage: React.FC = () => {
 
         {activeTab === "history" && (
           <div className="space-y-4">
-            <div className="flex justify-between items-center mb-2 select-none">
+            {/* FIX: flex-wrap so title and button stack on small screens */}
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-2 select-none">
               <h2 className="text-sm font-black uppercase tracking-wider text-primaryText dark:text-white">Meter Reading Logs</h2>
-              <Button onClick={() => setReadingModalOpen(true)} className="bg-primary text-white text-[10px] font-bold py-1.5 px-3">
+              <Button onClick={() => setReadingModalOpen(true)} className="bg-primary text-white text-[10px] font-bold py-1.5 px-3 shrink-0">
                 <Zap className="h-3.5 w-3.5 mr-1" /> Log New Reading
               </Button>
             </div>
@@ -581,8 +586,10 @@ export const ElectricityPage: React.FC = () => {
 
         {activeTab === "ledger" && (
           <div className="space-y-4">
-            {/* Filtering toolbar */}
-            <div className="glass-panel p-4 shadow-sm grid grid-cols-4 gap-4 items-end select-none">
+            {/* Filtering toolbar
+                FIX CRITICAL: was grid-cols-4 with NO mobile breakpoint — 4 columns at 320px (~65px each) = completely unusable.
+                Now: grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 */}
+            <div className="glass-panel p-4 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-end select-none">
               <div className="flex flex-col gap-1.5">
                 <label className="text-[8px] font-black text-muted uppercase tracking-widest">Search Tenant</label>
                 <div className="relative">
@@ -602,7 +609,7 @@ export const ElectricityPage: React.FC = () => {
                 <select
                   value={filterHostelId}
                   onChange={(e) => setFilterHostelId(e.target.value)}
-                  className="h-9 px-2 border border-border dark:border-gray-855 rounded bg-gray-55/35 dark:bg-gray-955 text-xs font-semibold text-secondaryText focus:outline-none cursor-pointer"
+                  className="h-9 px-2 border border-border dark:border-gray-855 rounded bg-gray-55/35 dark:bg-gray-955 text-xs font-semibold text-secondaryText focus:outline-none cursor-pointer w-full"
                 >
                   <option value="">All PG Hostels</option>
                   {hostels?.map(h => (
@@ -616,7 +623,7 @@ export const ElectricityPage: React.FC = () => {
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
-                  className="h-9 px-2 border border-border dark:border-gray-855 rounded bg-gray-55/35 dark:bg-gray-955 text-xs font-semibold text-secondaryText focus:outline-none cursor-pointer"
+                  className="h-9 px-2 border border-border dark:border-gray-855 rounded bg-gray-55/35 dark:bg-gray-955 text-xs font-semibold text-secondaryText focus:outline-none cursor-pointer w-full"
                 >
                   <option value="">All statuses</option>
                   <option value="PENDING">PENDING</option>
@@ -633,9 +640,12 @@ export const ElectricityPage: React.FC = () => {
               </Button>
             </div>
 
-            {/* List Table */}
-            <div className="glass-panel overflow-hidden shadow-sm">
-              <table className="w-full border-collapse text-left text-xs">
+            {/* List Table
+                FIX CRITICAL: was overflow-hidden — table content was visually CLIPPED on mobile.
+                Now: inner overflow-x-auto div + min-w-[900px] on table so it scrolls correctly. */}
+            <div className="glass-panel shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-left text-xs min-w-[900px]">
                 <thead>
                   <tr className="bg-gray-55/50 dark:bg-gray-955/40 border-b border-border select-none text-muted font-bold">
                     <th className="p-3">Tenant Name</th>
@@ -699,14 +709,18 @@ export const ElectricityPage: React.FC = () => {
                   )}
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
         )}
 
         {activeTab === "verification" && (
           <div className="space-y-4">
-            <div className="glass-panel overflow-hidden shadow-sm">
-              <table className="w-full border-collapse text-left text-xs">
+            {/* FIX CRITICAL: was overflow-hidden — table was CLIPPED on mobile.
+                Now: inner overflow-x-auto + min-w-[650px] so table scrolls correctly. */}
+            <div className="glass-panel shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-left text-xs min-w-[650px]">
                 <thead>
                   <tr className="bg-gray-55/50 dark:bg-gray-955/40 border-b border-border select-none text-muted font-bold">
                     <th className="p-3">Tenant</th>
@@ -756,6 +770,7 @@ export const ElectricityPage: React.FC = () => {
                   )}
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
         )}
@@ -764,21 +779,23 @@ export const ElectricityPage: React.FC = () => {
           <div className="space-y-6">
             {/* Summary details */}
             <div className="bg-white dark:bg-gray-900 border border-border rounded-card p-5 shadow-card space-y-4">
-              <div className="flex justify-between items-center select-none border-b border-gray-150 pb-3">
-                <h3 className="text-xs font-black text-primaryText dark:text-white uppercase tracking-wider flex items-center gap-1.5">
-                  <Printer className="h-4.5 w-4.5 text-primary" /> PG Consumption & Billing Audit Report
+              {/* FIX: flex-wrap so long title and Export button stack at 320px */}
+              <div className="flex flex-wrap items-center justify-between gap-3 select-none border-b border-gray-150 pb-3">
+                <h3 className="text-xs font-black text-primaryText dark:text-white uppercase tracking-wider flex items-center gap-1.5 min-w-0">
+                  <Printer className="h-4.5 w-4.5 text-primary shrink-0" />
+                  <span className="truncate">PG Consumption &amp; Billing Audit Report</span>
                 </h3>
                 <Button
                   onClick={exportToCSV}
-                  className="font-bold h-8.5 px-3 cursor-pointer inline-flex items-center gap-1"
+                  className="font-bold h-8.5 px-3 cursor-pointer inline-flex items-center gap-1 shrink-0"
                 >
-                  <Download className="h-4 w-4" /> Export Report CSV
+                  <Download className="h-4 w-4" /> Export CSV
                 </Button>
               </div>
 
               {/* Table details */}
               <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-left text-xs">
+                <table className="w-full border-collapse text-left text-xs min-w-[640px]">
                   <thead>
                     <tr className="bg-gray-55/50 dark:bg-gray-955/40 border-b border-border select-none text-muted font-bold">
                       <th className="p-3">Payment Date</th>
@@ -986,20 +1003,21 @@ export const ElectricityPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 mt-4">
+                {/* FIX: stack buttons vertically on mobile (flex-col), grid-cols-2 on sm+ */}
+                <div className="flex flex-col sm:grid sm:grid-cols-2 gap-2 mt-4">
                   <button
                     onClick={handleReject}
                     disabled={isVerifying}
-                    className="h-9 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded text-xs cursor-pointer disabled:opacity-40 transition-colors flex items-center justify-center gap-1.5"
+                    className="h-10 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded text-xs cursor-pointer disabled:opacity-40 transition-colors flex items-center justify-center gap-1.5"
                   >
                     <XCircle className="h-4.5 w-4.5" /> Reject Payment
                   </button>
                   <button
                     onClick={handleVerify}
                     disabled={isVerifying}
-                    className="h-9 px-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded text-xs cursor-pointer disabled:opacity-40 transition-colors flex items-center justify-center gap-1.5"
+                    className="h-10 px-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded text-xs cursor-pointer disabled:opacity-40 transition-colors flex items-center justify-center gap-1.5"
                   >
-                    <CheckCircle className="h-4.5 w-4.5" /> Approve & Verify
+                    <CheckCircle className="h-4.5 w-4.5" /> Approve &amp; Verify
                   </button>
                 </div>
               </div>
