@@ -6,7 +6,7 @@ import {
   Clock,
   AlertTriangle,
   CheckCircle2,
-  CircleDollarSign,
+  Zap,
   ArrowUpRight,
   Search,
   RefreshCw,
@@ -16,17 +16,17 @@ import {
   Sparkles,
 } from "lucide-react";
 import { formatCurrency } from "@bhagirathi/utils";
-import { useDashboardRentCollection } from "../hooks/api/useDashboard";
-import { RentCollectionTenantItem } from "../types";
+import { useDashboardElectricityCollection } from "../hooks/api/useDashboard";
+import { ElectricityCollectionTenantItem } from "../types";
 import { TenantCallAction } from "./TenantCallAction";
 
 
-interface TodayRentCollectionSectionProps {
+interface TodayElectricityCollectionSectionProps {
   hostelId?: string;
   buildingId?: string;
 }
 
-export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProps> = ({
+export const TodayElectricityCollectionSection: React.FC<TodayElectricityCollectionSectionProps> = ({
   hostelId,
   buildingId,
 }) => {
@@ -37,7 +37,7 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [upcomingSubFilter, setUpcomingSubFilter] = useState<"ALL" | "TOMORROW" | "NEXT_5_DAYS">("ALL");
 
-  const { data, isLoading, isError, refetch, isFetching } = useDashboardRentCollection({
+  const { data, isLoading, isError, refetch, isFetching } = useDashboardElectricityCollection({
     hostelId,
     buildingId,
     search: searchQuery,
@@ -65,18 +65,17 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
   });
 
   // Action handler
-  const handleAction = (item: RentCollectionTenantItem) => {
+  const handleAction = (item: ElectricityCollectionTenantItem) => {
     if (item.has_pending_payment && item.pending_payment_id) {
       navigate("/payments/submitted");
     } else {
-      navigate("/rent/cash-collection");
+      navigate("/rent/cash-collection"); // Might need to route to a specific electricity collection page if one exists
     }
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "PAID":
-
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
             <CheckCircle2 className="w-3 h-3" />
@@ -132,12 +131,12 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="p-2.5 bg-gradient-to-br from-amber-500 to-orange-500 text-white rounded-xl shadow-sm">
-              <CircleDollarSign className="h-5 w-5" />
+              <Zap className="h-5 w-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base sm:text-lg font-black text-primaryText dark:text-white tracking-tight">
-                  Today's Rent Collection
+                  Today's Electricity Bill Collection
                 </h2>
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-300/60 dark:border-amber-700">
                   <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
@@ -145,7 +144,7 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
                 </span>
               </div>
               <p className="text-xs text-muted dark:text-gray-400 mt-0.5">
-                Real-time collection status, payments due today & overdue tracking
+                Real-time collection status, bills due today & overdue tracking
               </p>
             </div>
           </div>
@@ -155,7 +154,7 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
               onClick={() => refetch()}
               disabled={isFetching}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-border dark:border-gray-700 text-secondaryText dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer disabled:opacity-50"
-              title="Refresh rent collection numbers"
+              title="Refresh electricity collection numbers"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? "animate-spin text-amber-600" : ""}`} />
               <span>Refresh</span>
@@ -285,7 +284,7 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
                 : "text-muted dark:text-gray-400 hover:text-red-600"
             }`}
           >
-            <span>Overdue Rent</span>
+            <span>Overdue Bills</span>
             <span
               className={`px-1.5 py-0.2 rounded-md text-[10px] font-extrabold ${
                 overdueCount > 0
@@ -382,12 +381,12 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
         {isLoading ? (
           <div className="flex flex-col items-center justify-center p-12 text-center">
             <RefreshCw className="h-6 w-6 text-amber-500 animate-spin mb-2" />
-            <p className="text-xs font-bold text-muted">Calculating rent collection metrics...</p>
+            <p className="text-xs font-bold text-muted">Calculating electricity collection metrics...</p>
           </div>
         ) : isError ? (
           <div className="flex flex-col items-center justify-center p-12 text-center">
             <AlertTriangle className="h-8 w-8 text-red-500 mb-2" />
-            <p className="text-sm font-bold text-primaryText dark:text-white">Failed to load rent collection data</p>
+            <p className="text-sm font-bold text-primaryText dark:text-white">Failed to load electricity collection data</p>
             <p className="text-xs text-muted mt-1">Please verify database connectivity and retry.</p>
             <button
               onClick={() => refetch()}
@@ -404,7 +403,7 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
                 <Sparkles className="h-7 w-7" />
               </div>
               <h3 className="text-sm font-black text-primaryText dark:text-white">
-                🎉 No rent collection due today
+                🎉 No electricity collection due today
               </h3>
               <p className="text-xs text-muted dark:text-gray-400 mt-1 max-w-sm">
                 All tenants are up to date. No outstanding collections scheduled for today.
@@ -416,7 +415,7 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
                 <tr>
                   <th className="py-3 px-4">Tenant</th>
                   <th className="py-3 px-4">Room & Building</th>
-                  <th className="py-3 px-4">Rent Amount</th>
+                  <th className="py-3 px-4">Bill Amount</th>
                   <th className="py-3 px-4">Paid Amount</th>
                   <th className="py-3 px-4">Remaining</th>
                   <th className="py-3 px-4">Due Date</th>
@@ -427,7 +426,7 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
               <tbody className="divide-y divide-border dark:divide-gray-800 font-medium">
                 {dueToday.map((item) => (
                   <tr
-                    key={item.rent_id}
+                    key={item.bill_id}
                     className="hover:bg-gray-50/60 dark:hover:bg-gray-800/40 transition-colors"
                   >
                     {/* Tenant Info */}
@@ -461,9 +460,9 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
                       </p>
                     </td>
 
-                    {/* Rent Amount */}
+                    {/* Bill Amount */}
                     <td className="py-3 px-4 tabular-nums font-bold text-primaryText dark:text-white">
-                      {formatCurrency(item.rent_amount).split(".00")[0]}
+                      {formatCurrency(item.bill_amount).split(".00")[0]}
                     </td>
 
                     {/* Paid Amount */}
@@ -498,7 +497,6 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
                       <div className="flex flex-col items-start gap-1">
                         {getStatusBadge(item.status)}
                         {item.has_pending_payment && (
-
                           <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 dark:text-amber-400">
                             <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-ping" />
                             Verify Pending (₹{item.pending_payment_amount})
@@ -546,7 +544,7 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
                 No overdue tenants!
               </h3>
               <p className="text-xs text-muted dark:text-gray-400 mt-1 max-w-sm">
-                Zero tenants currently exceed their rent payment deadline.
+                Zero tenants currently exceed their electricity bill payment deadline.
               </p>
             </div>
           ) : (
@@ -555,7 +553,7 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
                 <tr>
                   <th className="py-3 px-4">Tenant</th>
                   <th className="py-3 px-4">Room</th>
-                  <th className="py-3 px-4">Original Rent</th>
+                  <th className="py-3 px-4">Original Bill</th>
                   <th className="py-3 px-4">Paid</th>
                   <th className="py-3 px-4">Remaining</th>
                   <th className="py-3 px-4">Due Date</th>
@@ -566,7 +564,7 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
               <tbody className="divide-y divide-border dark:divide-gray-800 font-medium">
                 {overdue.map((item) => (
                   <tr
-                    key={item.rent_id}
+                    key={item.bill_id}
                     className="hover:bg-red-50/20 dark:hover:bg-red-950/10 transition-colors"
                   >
                     <td className="py-3 px-4">
@@ -586,7 +584,7 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
                     </td>
 
                     <td className="py-3 px-4 tabular-nums text-muted">
-                      {formatCurrency(item.rent_amount).split(".00")[0]}
+                      {formatCurrency(item.bill_amount).split(".00")[0]}
                     </td>
 
                     <td className="py-3 px-4 tabular-nums text-emerald-600 dark:text-emerald-400 font-semibold">
@@ -637,10 +635,10 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
                 <Clock className="h-7 w-7" />
               </div>
               <h3 className="text-sm font-black text-primaryText dark:text-white">
-                No upcoming rent in next 5 days
+                No upcoming bills in next 5 days
               </h3>
               <p className="text-xs text-muted dark:text-gray-400 mt-1 max-w-sm">
-                There are no rent obligations due within the upcoming 5-day reminder window.
+                There are no electricity bill obligations due within the upcoming 5-day reminder window.
               </p>
             </div>
           ) : (
@@ -649,7 +647,7 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
                 <tr>
                   <th className="py-3 px-4">Tenant</th>
                   <th className="py-3 px-4">Room & Building</th>
-                  <th className="py-3 px-4">Rent Amount</th>
+                  <th className="py-3 px-4">Bill Amount</th>
                   <th className="py-3 px-4">Paid</th>
                   <th className="py-3 px-4">Remaining</th>
                   <th className="py-3 px-4">Due Date</th>
@@ -660,7 +658,7 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
               <tbody className="divide-y divide-border dark:divide-gray-800 font-medium">
                 {filteredUpcoming.map((item) => (
                   <tr
-                    key={item.rent_id}
+                    key={item.bill_id}
                     className="hover:bg-purple-50/20 dark:hover:bg-purple-950/10 transition-colors"
                   >
                     <td className="py-3 px-4">
@@ -680,7 +678,7 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
                     </td>
 
                     <td className="py-3 px-4 tabular-nums text-muted">
-                      {formatCurrency(item.rent_amount).split(".00")[0]}
+                      {formatCurrency(item.bill_amount).split(".00")[0]}
                     </td>
 
                     <td className="py-3 px-4 tabular-nums text-emerald-600 dark:text-emerald-400 font-semibold">
@@ -735,4 +733,4 @@ export const TodayRentCollectionSection: React.FC<TodayRentCollectionSectionProp
   );
 };
 
-export default TodayRentCollectionSection;
+export default TodayElectricityCollectionSection;

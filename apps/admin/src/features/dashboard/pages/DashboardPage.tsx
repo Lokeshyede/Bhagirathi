@@ -24,6 +24,7 @@ import { RecentActivityCard } from "../components/RecentActivityCard";
 import { QuickActionsCard } from "../components/QuickActionsCard";
 import { RentAlertPopup } from "../components/RentAlertPopup";
 import { TodayRentCollectionSection } from "../components/TodayRentCollectionSection";
+import { TodayElectricityCollectionSection } from "../components/TodayElectricityCollectionSection";
 import { DashboardSkeleton } from "../components/DashboardSkeleton";
 
 import { DashboardEmptyState } from "../components/DashboardEmptyState";
@@ -201,6 +202,12 @@ export const DashboardPage: React.FC = () => {
 
       {/* 4b. Today's Rent Collection / Rent Reminder Section */}
       <TodayRentCollectionSection
+        hostelId={hostelId}
+        buildingId={buildingId}
+      />
+
+      {/* 4c. Today's Electricity Collection Section */}
+      <TodayElectricityCollectionSection
         hostelId={hostelId}
         buildingId={buildingId}
       />

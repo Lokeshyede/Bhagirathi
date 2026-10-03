@@ -8,7 +8,8 @@ import {
   RecentComplaintData,
   RecentNoticeData,
   ActivityLogData,
-  DashboardRentCollectionData
+  DashboardRentCollectionData,
+  DashboardElectricityCollectionData
 } from "../../types";
 
 
@@ -186,4 +187,32 @@ export const useDashboardRentCollection = (filters: DashboardRentCollectionFilte
     refetchInterval: 60_000,
   });
 };
+
+export const useDashboardElectricityCollection = (filters: DashboardRentCollectionFilters = {}) => {
+  return useQuery<DashboardElectricityCollectionData>({
+    queryKey: [
+      "dashboard",
+      "electricity-collection",
+      filters.hostelId,
+      filters.buildingId,
+      filters.floorId,
+      filters.search,
+      filters.status,
+    ],
+    queryFn: async () => {
+      const response = await apiClient.get("/api/v1/dashboard/electricity-collection", {
+        params: {
+          hostel_id: filters.hostelId || undefined,
+          building_id: filters.buildingId || undefined,
+          floor_id: filters.floorId || undefined,
+          search: filters.search?.trim() || undefined,
+          status: filters.status && filters.status !== "ALL" ? filters.status : undefined,
+        },
+      });
+      return response.data;
+    },
+    refetchInterval: 60_000,
+  });
+};
+
 

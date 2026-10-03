@@ -128,3 +128,49 @@ export interface DashboardRentCollectionData {
   upcoming: RentCollectionTenantItem[];
 }
 
+export interface ElectricityCollectionTenantItem {
+  tenant_id: string;
+  tenant_display_id: string;
+  tenant_name: string;
+  tenant_mobile?: string | null;
+  tenant_email?: string | null;
+  tenant_photo?: string | null;
+  hostel_id?: string | null;
+  hostel_name?: string | null;
+  building_id?: string | null;
+  building_name?: string | null;
+  floor_id?: string | null;
+  floor_name?: string | null;
+  room_id?: string | null;
+  room_number?: string | null;
+  bed_id?: string | null;
+  bed_number?: string | null;
+  bill_id: string;
+  bill_amount: number;
+  paid_amount: number;
+  remaining_amount: number;
+  due_date: string;
+  billing_month: string;
+  bill_month: number;
+  bill_year: number;
+  status: "DUE_TODAY" | "PARTIALLY_PAID" | "PAID" | "OVERDUE" | "UPCOMING";
+  days_overdue?: number | null;
+  days_until_due?: number | null;
+  has_pending_payment: boolean;
+  pending_payment_id?: string | null;
+  pending_payment_amount?: number | null;
+}
+
+export interface DashboardElectricityCollectionData {
+  due_today_count: number;
+  expected_amount: number;
+  collected_amount: number;
+  pending_amount: number;
+  overdue_count: number;
+  upcoming_count: number;
+  as_of_date: string;
+  due_today: ElectricityCollectionTenantItem[];
+  overdue: ElectricityCollectionTenantItem[];
+  upcoming: ElectricityCollectionTenantItem[];
+}
+
