@@ -125,8 +125,8 @@ export const DashboardPage: React.FC = () => {
   const isVerifying = ["SUBMITTED", "UNDER_VERIFICATION", "UNDER VERIFICATION", "UNDER REVIEW", "UNDER_REVIEW"].includes(payStatus);
   const noBill = !billGenerated || payStatus === "NO_BILL";
 
-  const rentVal = payable.rent_share ?? 0;
-  const elecVal = payable.electricity_share ?? 0;
+  const rentVal = payable.rent_outstanding ?? payable.rent_share ?? 0;
+  const elecVal = payable.electricity_outstanding ?? payable.electricity_share ?? 0;
   const totalVal = payable.outstanding_amount ?? (rentVal + elecVal);
 
   const importantNotice = notices.length > 0 ? notices[0] : null;

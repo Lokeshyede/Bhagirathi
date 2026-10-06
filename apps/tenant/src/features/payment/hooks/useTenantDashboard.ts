@@ -103,6 +103,7 @@ export const useSubmitPayment = () => {
       queryClient.invalidateQueries({ queryKey: ["tenant-dashboard-summary"] });
       // Canonical current-bill key — ensures PayRentPage and RentDetailsPage refresh
       queryClient.invalidateQueries({ queryKey: ["tenant-current-bill"] });
+      queryClient.invalidateQueries({ queryKey: ["my-electricity-bills"] });
     }
   });
 };
