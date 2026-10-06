@@ -1,4 +1,8 @@
-FROM python:3.11-slim
+# Pinned python:3.11-slim (Bookworm) for stability (AUD-039)
+FROM python:3.11.9-slim-bookworm
+
+# Add a non-root user (AUD-038)
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
 WORKDIR /workspace
 
@@ -12,7 +16,14 @@ COPY apps/backend/requirements.txt ./
 # Install python packages
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY apps/backend/ ./
+# Create directories and change ownership before switching user
+RUN mkdir -p /workspace && chown -R appuser:appgroup /workspace
+
+# Switch to non-root user
+USER appuser
+
+# Copy application files (with ownership)
+COPY --chown=appuser:appgroup apps/backend/ ./
 
 EXPOSE 8000
 

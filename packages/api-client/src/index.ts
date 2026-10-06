@@ -79,7 +79,7 @@ type PortalKeys = { token: string; refresh: string; user: string };
 // Module-level portal name — set once at app startup via initApiClient().
 // Defaults to "admin" as a safe fallback (matching previous behaviour for
 // code paths that do not call initApiClient, e.g., unit tests).
-let _currentPortal: PortalName = "admin";
+let _currentPortal: PortalName | null = null;
 
 /**
  * Initialize the API client with the correct portal identity.
@@ -103,9 +103,12 @@ export function initApiClient(portal: PortalName): void {
 /**
  * Returns the storage key set for the currently active portal.
  * Always returns the keys set by the most recent initApiClient() call.
- * Never guesses from port numbers or token presence.
+ * Throws an error if not initialized to prevent namespace leaking.
  */
 function getPortalKeys(): PortalKeys {
+  if (!_currentPortal) {
+    throw new Error("Portal namespace not initialized. You must call initApiClient() before making API requests.");
+  }
   return PORTAL_KEYS[_currentPortal];
 }
 
