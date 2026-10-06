@@ -176,7 +176,7 @@ export const ElectricityBillPage: React.FC = () => {
                     <span className="text-[9px] text-stone-400 dark:text-stone-500 font-black uppercase tracking-wider block">Due Date</span>
                     <span className="inline-flex items-center gap-1.5 text-xs font-bold text-stone-700 dark:text-stone-300 mt-1">
                       <Calendar className="h-4 w-4 text-stone-400" />
-                      {new Date(bill.due_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                      {bill.due_date ? new Date(bill.due_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "N/A"}
                     </span>
                   </div>
                   <div className="text-right">
